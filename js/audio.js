@@ -257,6 +257,15 @@ window.Abyss.Audio = (function () {
     stopMusic: stopMusic,
     playSfx: playSfx,
     isUnlocked: function () { return unlocked; },
+    getMusicState: function () {
+      return musicAudio ? {
+        paused: musicAudio.paused,
+        t: Math.round(musicAudio.currentTime * 100) / 100,
+        vol: Math.round(musicAudio.volume * 100) / 100,
+        ready: musicAudio.readyState,
+        src: (musicAudio.currentSrc || musicAudio.src || "").split("/").pop()
+      } : "無（沒有檔案音樂在播）";
+    },
     // 供未來替換素材參考。
     MUSIC_FILES: MUSIC_FILES,
     SFX_FILES: SFX_FILES

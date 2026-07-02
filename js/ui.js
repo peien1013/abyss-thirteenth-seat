@@ -65,21 +65,21 @@ window.Abyss.UI = (function () {
   // ---- 職業選擇 ----
   function renderClassCards(classes, onSelect) {
     el.classGrid.innerHTML = "";
+    let num = 0;
     Object.keys(classes).forEach(function (id) {
+      num += 1;
       const c = classes[id];
       const s = c.baseStats;
       const skill = (window.GAME_DATA.skills || {})[c.startingSkill];
       const card = document.createElement("button");
       card.type = "button";
       card.className = "class-card";
-      // 職業頭像（有正式圖用圖，否則占位）。
-      if (window.Abyss.Sprites) {
-        const p = window.Abyss.Sprites.portraitNode(id);
-        p.classList.add("class-portrait");
-        card.appendChild(p);
-      }
-      const info = document.createElement("div");
-      info.innerHTML =
+      // 正常畫風全身立繪（非 Q 版）。有 .jpg（線上壓縮版）就用 jpg，否則 png。
+      card.innerHTML =
+        "<span class='cc-num'>" + num + "</span>" +
+        "<div class='cc-art'><img src='assets/characters/" + id + "_full.jpg' alt='' " +
+        "onerror=\"this.onerror=null;this.src='assets/characters/" + id + "_full.jpg'\"></div>" +
+        "<div class='cc-body'>" +
         "<h3>" + c.name + "</h3>" +
         "<ul class='stat-list'>" +
         statLi("HP", s.maxHp) +
@@ -91,8 +91,8 @@ window.Abyss.UI = (function () {
         statLi("暴擊", Math.round((s.critRate || 0) * 100) + "%") +
         "</ul>" +
         "<div class='class-skill'>初始技能：" + (skill ? skill.name : "—") + "</div>" +
-        (skill ? "<div class='class-skill-desc'>" + skill.desc + "</div>" : "");
-      card.appendChild(info);
+        (skill ? "<div class='class-skill-desc'>" + skill.desc + "</div>" : "") +
+        "</div>";
       card.addEventListener("click", function () { onSelect(id); });
       el.classGrid.appendChild(card);
     });

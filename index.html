@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202607022204">
+  <link rel="stylesheet" href="css/style.css?v=202607022215">
 </head>
 <body>
   <noscript>此遊戲需要啟用 JavaScript。</noscript>
@@ -120,11 +120,12 @@
     </section>
 
     <!-- 職業選擇 -->
-    <section id="screen-class" class="screen">
-      <div class="panel">
-        <h2>選擇你的職業</h2>
+    <section id="screen-class" class="screen classpick-screen">
+      <div class="classpick-bg layer" aria-hidden="true"></div>
+      <div class="classpick-content layer">
+        <h2 class="classpick-title">選擇你的英雄</h2>
         <div id="class-grid" class="class-grid"></div>
-        <button id="btn-class-back" type="button" class="btn small">返回</button>
+        <button id="btn-class-back" type="button" class="chip-btn classpick-back">← 返回</button>
       </div>
     </section>
 
@@ -368,16 +369,16 @@
   <script src="data/floors/floor01.js"></script>
 
   <!-- 程式邏輯 -->
-  <script src="js/save.js?v=202607022204"></script>
-  <script src="js/audio.js?v=202607022204"></script>
-  <script src="js/sprites.js?v=202607022204"></script>
-  <script src="js/effects.js?v=202607022204"></script>
-  <script src="js/player.js?v=202607022204"></script>
-  <script src="js/maze.js?v=202607022204"></script>
-  <script src="js/battle.js?v=202607022204"></script>
-  <script src="js/ui.js?v=202607022204"></script>
-  <script src="js/menu.js?v=202607022204"></script>
-  <script src="js/game.js?v=202607022204"></script>
-  <script src="js/main.js?v=202607022204"></script>
+  <script src="js/save.js?v=202607022215"></script>
+  <script src="js/audio.js?v=202607022215"></script>
+  <script src="js/sprites.js?v=202607022215"></script>
+  <script src="js/effects.js?v=202607022215"></script>
+  <script src="js/player.js?v=202607022215"></script>
+  <script src="js/maze.js?v=202607022215"></script>
+  <script src="js/battle.js?v=202607022215"></script>
+  <script src="js/ui.js?v=202607022215"></script>
+  <script src="js/menu.js?v=202607022215"></script>
+  <script src="js/game.js?v=202607022215"></script>
+  <script src="js/main.js?v=202607022215"></script>
 </body>
 </html>
