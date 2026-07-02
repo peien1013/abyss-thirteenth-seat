@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>深淵第十三席</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <noscript>此遊戲需要啟用 JavaScript。</noscript>
+  <main id="app">
+
+    <!-- 主選單（UI 重製 docs 08–12） -->
+    <section id="screen-start" class="screen active menu-screen">
+      <div class="menu-bg layer" aria-hidden="true"></div>
+      <div id="menu-character" class="menu-character layer show-hero" aria-hidden="true">
+        <div class="menu-glow"></div>
+        <div id="menu-figure" class="menu-figure">
+          <img src="assets/characters/warrior_full.jpg" alt="" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div class="menu-vignette layer" aria-hidden="true"></div>
+      <div class="menu-embers layer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="title-art layer menu-sigil-bg" aria-hidden="true">
+        <svg viewBox="0 0 800 620" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ta-amb" cx="50%" cy="40%" r="62%">
+              <stop offset="0%" stop-color="#3a2d26"/><stop offset="55%" stop-color="#191316"/><stop offset="100%" stop-color="#0a0809"/>
+            </radialGradient>
+            <linearGradient id="ta-arch" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#b3924e"/><stop offset="50%" stop-color="#7d6538"/><stop offset="100%" stop-color="#4a3a20"/>
+            </linearGradient>
+            <radialGradient id="ta-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffcf7a"/><stop offset="45%" stop-color="#e6a94a" stop-opacity="0.5"/><stop offset="100%" stop-color="#e6a94a" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect x="0" y="0" width="800" height="620" fill="url(#ta-amb)"/>
+          <!-- 石牆磚縫 -->
+          <g stroke="#241c19" stroke-width="2" opacity="0.55">
+            <path d="M0 90 H800 M0 190 H800 M0 470 H800 M0 560 H800"/>
+            <path d="M120 0 V90 M320 90 V190 M540 0 V90 M120 470 V560 M400 470 V560 M660 470 V560"/>
+          </g>
+          <!-- 拱門內部黑暗 -->
+          <path d="M285 560 L285 255 Q285 140 400 140 Q515 140 515 255 L515 560 Z" fill="#0b090c"/>
+          <!-- 隱約王座（第十三席） -->
+          <path d="M372 250 l56 0 0 -34 10 0 0 60 -76 0 0 -60 10 0 z" fill="#060507"/>
+          <path d="M372 216 q28 -12 56 0" fill="none" stroke="#e6a94a" stroke-width="1" opacity="0.25"/>
+          <!-- 封印徽記 + 光暈 -->
+          <circle cx="400" cy="405" r="150" fill="url(#ta-glow)" opacity="0.55"/>
+          <circle cx="400" cy="405" r="96" fill="none" stroke="#8a7238" stroke-width="3"/>
+          <circle cx="400" cy="405" r="72" fill="none" stroke="#8a7238" stroke-width="2" opacity="0.8"/>
+          <circle cx="400" cy="405" r="34" fill="none" stroke="#e6a94a" stroke-width="2"/>
+          <g stroke="#8a7238" stroke-width="2" opacity="0.7">
+            <path d="M400 300 v18 M400 492 v18 M295 405 h18 M487 405 h18 M326 331 l13 13 M461 466 l13 13 M474 331 l-13 13 M339 466 l-13 13"/>
+          </g>
+          <path d="M360 372 l26 16 -10 22 34 12 -16 26" fill="none" stroke="#e6a94a" stroke-width="1.5" opacity="0.5"/>
+          <circle cx="400" cy="405" r="6" fill="#ffcf7a"/>
+          <!-- 拱門青銅框 -->
+          <path d="M285 560 L285 255 Q285 140 400 140 Q515 140 515 255 L515 560" fill="none" stroke="url(#ta-arch)" stroke-width="16"/>
+          <path d="M285 560 L285 255 Q285 140 400 140 Q515 140 515 255 L515 560" fill="none" stroke="#2a2214" stroke-width="2"/>
+          <path d="M386 132 l28 0 7 18 -42 0 z" fill="url(#ta-arch)"/>
+          <!-- 鎖鏈 -->
+          <path d="M320 140 q-4 30 2 60" fill="none" stroke="#3a3128" stroke-width="3" opacity="0.6"/>
+          <path d="M482 140 q6 34 -2 66" fill="none" stroke="#3a3128" stroke-width="3" opacity="0.55"/>
+          <!-- 左右燭台 -->
+          <g class="candle" transform="translate(212,318)">
+            <ellipse class="halo" cx="0" cy="-16" rx="30" ry="40" fill="url(#ta-glow)"/>
+            <rect x="-9" y="-3" width="18" height="6" rx="2" fill="#6f5d38"/>
+            <rect x="-6" y="2" width="12" height="42" fill="#d8cdb4"/>
+            <path d="M0 44 q10 6 0 14" fill="none" stroke="#c3b79a" stroke-width="2"/>
+            <path class="flame" d="M0 -6 q8 -11 0 -24 q-8 13 0 24 z" fill="#f2b64e"/>
+            <path class="flame core" d="M0 -8 q3.5 -6 0 -14 q-3.5 8 0 14 z" fill="#ffe6a0"/>
+          </g>
+          <g class="candle" transform="translate(588,318)">
+            <ellipse class="halo" cx="0" cy="-16" rx="30" ry="40" fill="url(#ta-glow)"/>
+            <rect x="-9" y="-3" width="18" height="6" rx="2" fill="#6f5d38"/>
+            <rect x="-6" y="2" width="12" height="42" fill="#d8cdb4"/>
+            <path d="M0 44 q-10 6 0 14" fill="none" stroke="#c3b79a" stroke-width="2"/>
+            <path class="flame" d="M0 -6 q8 -11 0 -24 q-8 13 0 24 z" fill="#f2b64e"/>
+            <path class="flame core" d="M0 -8 q3.5 -6 0 -14 q-3.5 8 0 14 z" fill="#ffe6a0"/>
+          </g>
+          <!-- 灰塵 -->
+          <g fill="#c8b98f" opacity="0.4"><circle cx="150" cy="240" r="2"/><circle cx="660" cy="300" r="2.4"/><circle cx="230" cy="480" r="1.8"/><circle cx="580" cy="500" r="2"/><circle cx="400" cy="90" r="1.6"/></g>
+          <!-- 上下暗角 -->
+          <rect x="0" y="0" width="800" height="620" fill="url(#ta-amb)" opacity="0"/>
+        </svg>
+      </div>
+      <div class="menu-content layer">
+        <div class="menu-titleblock">
+          <svg class="menu-sigil" viewBox="0 0 140 140" aria-hidden="true">
+            <g fill="none" stroke="#a62b32" stroke-width="1.4" opacity="0.6">
+              <circle cx="70" cy="70" r="60"/><circle cx="70" cy="70" r="44"/>
+              <path d="M70 8 v124 M8 70 h124 M27 27 l86 86 M113 27 l-86 86"/>
+            </g>
+            <path d="M70 24 l7 32 32 7 -32 7 -7 32 -7 -32 -32 -7 32 -7z" fill="#a62b32" opacity="0.85"/>
+            <circle cx="70" cy="70" r="5" fill="#d0402a"/>
+          </svg>
+          <h1 class="game-title">深淵第十三席</h1>
+          <p class="game-subtitle">The Thirteenth Seat of the Abyss</p>
+        </div>
+        <nav class="menu-nav">
+          <button id="btn-new-game" type="button" class="plate-btn primary"><span>開始冒險</span></button>
+          <button id="btn-continue" type="button" class="plate-btn" disabled><span>繼續旅程</span></button>
+          <button id="btn-codex" type="button" class="plate-btn"><span>圖鑑</span></button>
+          <button id="btn-settings" type="button" class="plate-btn"><span>設定</span></button>
+        </nav>
+        <div class="menu-home-wallet">🏠 金庫：<span id="home-gold">0</span> 金幣</div>
+      </div>
+
+      <div class="menu-footer">
+        <button id="btn-volume" type="button" class="chip-btn">🔊 音效</button>
+        <button id="btn-music" type="button" class="chip-btn">🎵 音樂</button>
+        <button id="btn-instructions" type="button" class="chip-btn">❔ 說明</button>
+        <button id="btn-fullscreen" type="button" class="chip-btn">⛶ 全螢幕</button>
+      </div>
+      <img class="ref-overlay" data-src="assets/ui/references/01_主選單參考.png" alt="" aria-hidden="true">
+    </section>
+
+    <!-- 職業選擇 -->
+    <section id="screen-class" class="screen">
+      <div class="panel">
+        <h2>選擇你的職業</h2>
+        <div id="class-grid" class="class-grid"></div>
+        <button id="btn-class-back" type="button" class="btn small">返回</button>
+      </div>
+    </section>
+
+    <!-- 迷宮 -->
+    <section id="screen-maze" class="screen maze-screen">
+      <!-- 世界層：第一人稱走廊 -->
+      <div class="maze-world layer">
+        <canvas id="view-canvas" width="1280" height="720"></canvas>
+      </div>
+
+      <!-- HUD 層 -->
+      <div class="maze-hud layer">
+        <div class="maze-compass"><span>W</span><span class="n">N</span><span>E</span></div>
+
+        <!-- 左上：樓層 / 進度 / 目標 / 狀態 -->
+        <div class="maze-topleft">
+          <div class="maze-floorname">第一層　<span id="hud-floor">沉眠門廊</span></div>
+          <div class="maze-progress-row">探索進度：<span id="hud-explore">0%</span>
+            <div class="thin-bar"><div id="hud-explorebar" class="thin-fill"></div></div>
+          </div>
+          <div class="maze-quest">
+            <div class="quest-head"><span class="q-diamond">◈</span> 主線目標</div>
+            <div class="quest-text">尋找通往深淵核心的道路</div>
+          </div>
+          <div class="maze-status">
+            <div class="status-head">當前狀態</div>
+            <div class="status-row"><span class="st-ico">🜂</span><span class="st-body"><span class="st-name">微光火炬</span><span class="st-sub">照亮前方道路</span></span></div>
+            <div class="status-row"><span class="st-ico">✚</span><span class="st-body"><span class="st-name">生命緩緩恢復</span><span class="st-sub">每步回復少許生命</span></span></div>
+          </div>
+        </div>
+
+        <!-- 右上：小地圖 -->
+        <div class="maze-minimap">
+          <div class="mm-explore">區域探索度：<span id="hud-explore2">0%</span></div>
+          <div class="mm-frame">
+            <canvas id="minimap-canvas" width="240" height="210"></canvas>
+            <div class="mm-tools">
+              <button id="btn-map-zoomin" type="button" class="mm-btn">＋</button>
+              <button id="btn-map-zoomout" type="button" class="mm-btn">－</button>
+            </div>
+          </div>
+          <button id="btn-map-detail" type="button" class="mm-detail">▣ 查看地圖詳情</button>
+        </div>
+
+        <!-- 左下：頭像 + 血條 -->
+        <div class="maze-charpanel">
+          <div class="portrait-oval"><div id="maze-portrait" class="portrait-inner"></div></div>
+          <div class="charpanel-info">
+            <div class="stat-line"><span class="sl-label">HP</span><div class="sl-bar"><div id="hud-hpbar" class="sl-fill hp"></div></div><span id="hud-hp" class="sl-val">0/0</span></div>
+            <div class="stat-line"><span class="sl-label">MP</span><div class="sl-bar"><div id="hud-mpbar" class="sl-fill mp"></div></div><span id="hud-mp" class="sl-val">0/0</span></div>
+            <div class="cp-botrow">
+              <span class="cp-lv"><span id="hud-lv">Lv.1</span><span id="hud-class" class="cp-cls">戰士</span></span>
+              <span class="cp-exp">EXP <span id="hud-exp">0 / 0</span></span>
+            </div>
+            <div class="exp-thin"><div id="hud-expbar" class="exp-thin-fill"></div></div>
+          </div>
+        </div>
+        <div class="maze-gold">💰 <span id="hud-gold">0</span></div>
+
+        <!-- 底部中央：方向盤 -->
+        <div class="maze-dpad">
+          <div class="disc-item"><button id="btn-left" type="button" class="disc-btn"><span class="disc-ico">↰</span></button><span class="disc-label">左轉</span></div>
+          <div class="disc-item"><button id="btn-forward" type="button" class="disc-btn"><span class="disc-ico">↑</span></button><span class="disc-label">前進</span></div>
+          <div class="disc-item"><button id="btn-back" type="button" class="disc-btn"><span class="disc-ico">↓</span></button><span class="disc-label">後退</span></div>
+          <div class="disc-item"><button id="btn-right" type="button" class="disc-btn"><span class="disc-ico">↱</span></button><span class="disc-label">右轉</span></div>
+        </div>
+
+        <!-- 右下：功能鍵 -->
+        <div class="maze-tools">
+          <div class="disc-item"><button id="btn-equip" type="button" class="disc-btn"><span class="disc-ico">🎒</span></button><span class="disc-label">背包</span></div>
+          <div class="disc-item"><button id="btn-codex2" type="button" class="disc-btn" disabled><span class="disc-ico">📖</span></button><span class="disc-label">圖鑑</span></div>
+          <div class="disc-item"><button id="btn-status" type="button" class="disc-btn"><span class="disc-ico">✦</span></button><span class="disc-label">狀態</span></div>
+          <div class="disc-item"><button id="btn-maze-settings" type="button" class="disc-btn"><span class="disc-ico">⚙</span></button><span class="disc-label">設定</span></div>
+        </div>
+
+        <div id="maze-message" class="maze-msg">…</div>
+      </div>
+
+      <img class="ref-overlay" data-src="assets/ui/references/02_迷宮探索參考.png" alt="" aria-hidden="true">
+    </section>
+
+    <!-- 戰鬥 -->
+    <section id="screen-battle" class="screen battle-screen">
+      <!-- 背景層：戰場（走廊）-->
+      <div class="battle-world layer">
+        <canvas id="battle-bg" width="1280" height="720" aria-hidden="true"></canvas>
+        <div class="scene-shade" aria-hidden="true"></div>
+      </div>
+
+      <!-- 敵人層 -->
+      <div id="battle-scene" class="battle-scene layer">
+        <div id="battle-enemies"></div>
+      </div>
+
+      <!-- HUD 層 -->
+      <div class="battle-hud layer">
+        <!-- 頂部：logo / 區域 / 回合 / 設定 -->
+        <div class="battle-logo">
+          <div class="bl-title">深淵第十三席</div>
+          <div class="bl-sub">The Thirteenth Seat of the Abyss</div>
+        </div>
+        <div class="battle-areaplate"><span id="battle-area">深淵殘廟</span></div>
+        <div class="battle-topright">
+          <span class="battle-round">回合 <span id="battle-round">1</span></span>
+          <button id="btn-battle-settings" type="button" class="icon-btn">⚙</button>
+        </div>
+
+        <!-- 左側：戰鬥日誌 -->
+        <div class="battle-logpanel">
+          <div class="logpanel-head">戰鬥日誌</div>
+          <div id="battle-log" class="battle-log"></div>
+        </div>
+
+        <!-- 左下：玩家狀態 -->
+        <div class="battle-playerpanel">
+          <div class="bp-portrait"><div id="battle-portrait" class="portrait-inner"></div></div>
+          <div class="bp-info">
+            <div class="bp-name"><span id="battle-player-name">—</span></div>
+            <div class="bp-sub"><span id="battle-player-lv">Lv.1</span><span id="battle-player-cls" class="bp-cls"></span></div>
+            <div class="bp-line"><span class="bp-label">HP</span><span id="battle-player-hp" class="bp-val">0 / 0</span><div class="bp-track"><div id="battle-player-hpbar" class="bp-fill hp"></div></div></div>
+            <div class="bp-line"><span class="bp-label">MP</span><span id="battle-player-mp" class="bp-val">0 / 0</span><div class="bp-track"><div id="battle-player-mpbar" class="bp-fill mp"></div></div></div>
+            <div class="bp-line"><span class="bp-label">EXP</span><span id="battle-player-exp" class="bp-val">0 / 0</span><div class="bp-track"><div id="battle-player-expbar" class="bp-fill exp"></div></div></div>
+          </div>
+        </div>
+
+        <!-- 底部中央：行動／技能說明＋選單 -->
+        <div class="battle-descpanel">
+          <div id="battle-hint" class="battle-hint">輪到你了。</div>
+          <div id="battle-submenu" class="battle-submenu"></div>
+        </div>
+
+        <!-- 底部右：四個行動 -->
+        <div id="battle-actions" class="battle-actions">
+          <button id="btn-attack" type="button" class="action-tile primary"><span class="at-ico">⚔</span><span class="at-label">攻擊</span></button>
+          <button id="btn-skill" type="button" class="action-tile"><span class="at-ico">✦</span><span class="at-label">技能</span></button>
+          <button id="btn-item" type="button" class="action-tile"><span class="at-ico">🧪</span><span class="at-label">道具</span></button>
+          <button id="btn-flee" type="button" class="action-tile"><span class="at-ico">🏃</span><span class="at-label">逃跑</span></button>
+        </div>
+      </div>
+
+      <img class="ref-overlay" data-src="assets/ui/references/03_戰鬥畫面參考.png" alt="" aria-hidden="true">
+    </section>
+
+    <!-- 死亡 -->
+    <section id="screen-death" class="screen">
+      <div class="panel death-panel">
+        <h2>你倒下了</h2>
+        <p class="subtitle">深淵收回了這一輪的一切。</p>
+        <div id="death-stats" class="stats-block"></div>
+        <button id="btn-death-restart" type="button" class="btn primary">回到起點</button>
+      </div>
+    </section>
+
+    <!-- 勝利（第一層完成）-->
+    <section id="screen-victory" class="screen">
+      <div class="panel victory-panel">
+        <h2>第一層完成</h2>
+        <p class="subtitle">封印大門開啟，通往更深的黑暗。</p>
+        <div id="victory-stats" class="stats-block"></div>
+        <button id="btn-victory-continue" type="button" class="btn primary">返回起點</button>
+      </div>
+    </section>
+
+    <!-- 裝備彈窗 -->
+    <div id="modal-equip" class="modal">
+      <div class="modal-box equip-box">
+        <h2>包包 / 裝備</h2>
+        <div class="equip-topbar">
+          <span class="equip-gold">💰 <span id="equip-gold">0</span></span>
+          <span id="equip-count" class="equip-count">背包 0/10</span>
+        </div>
+        <div id="equip-stats" class="equip-stats"></div>
+        <div id="equip-slots" class="equip-slots"></div>
+        <h3 class="equip-bag-title">背包（裝備點一下就穿上）</h3>
+        <div id="equip-bag" class="equip-bag"></div>
+        <button id="btn-equip-close" type="button" class="btn primary">關閉</button>
+      </div>
+    </div>
+
+    <!-- 音訊設定彈窗 -->
+    <div id="modal-audio" class="modal">
+      <div class="modal-box">
+        <h2>音訊設定</h2>
+        <p class="hint audio-note">首次點擊或按鍵後才會開始播放（瀏覽器限制）。目前為占位合成音，未來會替換為正式音樂與音效。</p>
+        <div class="audio-row">
+          <label for="vol-master">總音量</label>
+          <input id="vol-master" class="slider" type="range" min="0" max="100" value="70">
+          <span id="vol-master-val" class="audio-val">70</span>
+        </div>
+        <div class="audio-row">
+          <label for="vol-music">音樂</label>
+          <input id="vol-music" class="slider" type="range" min="0" max="100" value="60">
+          <span id="vol-music-val" class="audio-val">60</span>
+        </div>
+        <div class="audio-row">
+          <label for="vol-sfx">音效</label>
+          <input id="vol-sfx" class="slider" type="range" min="0" max="100" value="80">
+          <span id="vol-sfx-val" class="audio-val">80</span>
+        </div>
+        <label class="audio-mute"><input id="chk-mute" type="checkbox"> 總靜音</label>
+        <button id="btn-audio-close" type="button" class="btn primary">關閉</button>
+      </div>
+    </div>
+
+    <!-- 操作說明彈窗 -->
+    <div id="modal-instructions" class="modal">
+      <div class="modal-box">
+        <h2>操作說明</h2>
+        <ul class="help-list">
+          <li><b>W / ↑</b>：前進</li>
+          <li><b>S / ↓</b>：後退</li>
+          <li><b>A / ←</b>：左轉</li>
+          <li><b>D / →</b>：右轉</li>
+          <li>手機可使用畫面下方的大型方向按鈕。</li>
+          <li>移動時可能遭遇 1～5 隻怪物，進入回合制戰鬥。</li>
+          <li>戰鬥中可：攻擊、技能、道具、逃跑。</li>
+          <li>敵人越多，單體越弱；擊敗守門人即可通往出口。</li>
+          <li>角色死亡後，本輪所有資料歸零。</li>
+        </ul>
+        <button id="btn-instructions-close" type="button" class="btn primary">關閉</button>
+      </div>
+    </div>
+
+    <!-- 全畫面哥德外框（1920×1080 舞台邊緣，隨畫布縮放） -->
+    <div class="game-frame" aria-hidden="true">
+      <span class="frame-crest top"></span>
+      <span class="frame-crest bottom"></span>
+      <span class="frame-corner tl"></span><span class="frame-corner tr"></span>
+      <span class="frame-corner bl"></span><span class="frame-corner br"></span>
+    </div>
+
+  </main>
+
+  <!-- 遊戲資料 -->
+  <script src="data/classes.js"></script>
+  <script src="data/monsters.js"></script>
+  <script src="data/items.js"></script>
+  <script src="data/equipment.js"></script>
+  <script src="data/skills.js"></script>
+  <script src="data/encounters.js"></script>
+  <script src="data/floors/floor01.js"></script>
+
+  <!-- 程式邏輯 -->
+  <script src="js/save.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/maze.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
