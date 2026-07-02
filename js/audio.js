@@ -11,10 +11,13 @@ window.Abyss.Audio = (function () {
   "use strict";
 
   // 未來替換正式素材時填入實際路徑；目前檔案不存在會自動降級為占位合成音。
+  // 真實音樂檔（存在就用檔案播放；沒列在這裡的 key 會退回占位合成音）。
   const MUSIC_FILES = {
-    floor01_explore: "assets/audio/music/floor01_explore.ogg",
-    floor01_battle: "assets/audio/music/floor01_battle.ogg",
-    boss_hermon: "assets/audio/music/boss_hermon.ogg"
+    menu_theme: "assets/audio/music/menu_theme.mp3"
+    // 之後做好樓層/戰鬥音樂，放這裡即可：
+    // floor01_explore: "assets/audio/music/floor01_explore.mp3",
+    // floor01_battle:  "assets/audio/music/floor01_battle.mp3",
+    // boss_hermon:     "assets/audio/music/boss_hermon.mp3"
   };
   const SFX_FILES = {
     footstep: "assets/audio/sfx/footsteps_stone_01.ogg",
@@ -64,6 +67,7 @@ window.Abyss.Audio = (function () {
   let pending = null;         // 等待解鎖後播放的音樂 { key, opts }
   let currentKey = null;      // 目前音樂 key
   let placeholderNodes = null; // 占位合成音樂節點群
+  let musicAudio = null;       // 真實音樂檔（HTMLAudio；例如登入音樂）
 
   function Save() { return window.Abyss.Save; }
   function clamp01(v) { return Math.max(0, Math.min(1, v)); }
@@ -103,7 +107,10 @@ window.Abyss.Audio = (function () {
 
   function effMaster() { return settings.muted ? 0 : clamp01(settings.masterVolume); }
 
+  function musicFileVolume() { return clamp01(effMaster() * clamp01(settings.musicVolume)); }
+
   function applyVolumes() {
+    if (musicAudio) musicAudio.volume = musicFileVolume(); // 真實音樂檔跟著總音量/音樂/靜音
     if (!ctx) return;
     const t = ctx.currentTime;
     masterGain.gain.setTargetAtTime(effMaster(), t, 0.02);
@@ -132,14 +139,45 @@ window.Abyss.Audio = (function () {
   function playMusic(key, opts) {
     opts = opts || {};
     if (!unlocked) { pending = { key: key, opts: opts }; currentKey = key; return; }
-    if (currentKey === key && placeholderNodes) return; // 已在播放同一首
+    if (currentKey === key && (placeholderNodes || musicAudio)) return; // 已在播放同一首
     currentKey = key;
     stopPlaceholderMusic(0.4);
-    // 目前無真實檔案 → 以占位合成 drone 呈現；未來 MUSIC_FILES[key] 存在時改走檔案播放。
-    startPlaceholderMusic(key);
+    stopFileMusic(0.4);
+    // 有真實檔案就播檔案（如登入音樂），否則退回占位合成 drone。
+    if (MUSIC_FILES[key]) startFileMusic(key);
+    else startPlaceholderMusic(key);
   }
 
-  function stopMusic() { currentKey = null; stopPlaceholderMusic(0.5); }
+  function stopMusic() { currentKey = null; stopPlaceholderMusic(0.5); stopFileMusic(0.5); }
+
+  // 真實音樂檔（HTMLAudio）：循環播放、淡入淡出，音量跟隨設定。
+  function startFileMusic(key) {
+    const url = MUSIC_FILES[key];
+    if (!url) return;
+    const a = new Audio(url);
+    a.loop = true; a.preload = "auto"; a.volume = 0;
+    musicAudio = a;
+    const play = a.play();
+    if (play && play.catch) play.catch(function () {}); // 尚未解鎖等情況：忽略
+    let i = 0; const steps = 24;
+    const iv = setInterval(function () {
+      if (musicAudio !== a) { clearInterval(iv); return; } // 已被切換掉
+      i++; a.volume = clamp01(musicFileVolume() * (i / steps));
+      if (i >= steps) { clearInterval(iv); a.volume = musicFileVolume(); }
+    }, 30);
+  }
+
+  function stopFileMusic(fade) {
+    const a = musicAudio;
+    if (!a) return;
+    musicAudio = null;
+    const v0 = a.volume, steps = 16; let i = 0;
+    const ms = Math.max(50, ((fade || 0.4) * 1000) / steps);
+    const iv = setInterval(function () {
+      i++; a.volume = clamp01(v0 * (1 - i / steps));
+      if (i >= steps) { clearInterval(iv); try { a.pause(); } catch (e) {} a.removeAttribute("src"); }
+    }, ms);
+  }
 
   // 占位音樂：低沉 drone，依 key 給不同音高與呼吸感，示範分軌與淡入淡出。
   function startPlaceholderMusic(key) {

@@ -53,6 +53,7 @@ window.Abyss.UI = (function () {
     if (id === "screen-start") {
       updateWallet();
       if (window.Abyss.Menu) window.Abyss.Menu.refreshShowcase();
+      if (window.Abyss.Audio) window.Abyss.Audio.playMusic("menu_theme"); // 登入音樂（首次點畫面後開始）
     }
   }
 
