@@ -326,11 +326,20 @@ window.Abyss.Sprites = (function () {
     return node("assets/images/equipment/" + id + ".png", equipPlaceholder(), "equip");
   }
 
+  // 預先載入一批圖（載好＋去背處理後放進快取）。之後顯示就直接出真圖、不會先閃占位剪影。
+  function preload(urls, done) {
+    if (!urls || !urls.length) { if (done) done(); return; }
+    var left = urls.length;
+    urls.forEach(function (u) { ensure(u, function () { if (--left === 0 && done) done(); }); });
+  }
+
   return {
     monster: monster,
     monsterNode: monsterNode,
     itemNode: itemNode,
     portraitNode: portraitNode,
-    equipNode: equipNode
+    equipNode: equipNode,
+    load: ensure,     // 取得處理後的圖：load(url, function(res){ res.status==='ok' → res.data })
+    preload: preload  // 預先載入一批 url
   };
 })();

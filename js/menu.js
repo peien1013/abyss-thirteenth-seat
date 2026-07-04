@@ -45,6 +45,13 @@
     return i;
   }
 
+  function spriteUrl(entry) {
+    if (entry.kind === "monster") return "assets/images/monsters/" + entry.id + ".png";
+    if (entry.kind === "item") return "assets/images/items/" + entry.id + ".png";
+    if (entry.kind === "equip") return "assets/images/equipment/" + entry.id + ".png";
+    return null;
+  }
+
   function figureNode(entry) {
     const S = window.Abyss.Sprites;
     if (entry.kind === "hero") {
@@ -54,10 +61,31 @@
       img.setAttribute("onerror", "this.style.display='none'");
       return img;
     }
-    if (!S) return document.createElement("div");
-    if (entry.kind === "monster") return S.monsterNode(entry.id);
-    if (entry.kind === "item") return S.itemNode(entry.id);
-    return S.equipNode(entry.id);
+    // 怪物 / 道具 / 裝備：等真圖「載好＋去背處理好」才放上去，不先閃占位剪影。
+    // 已預先載入時 load 會同步回呼，直接就是真立繪。
+    const img = document.createElement("img");
+    img.className = "showcase-sprite";
+    img.alt = "";
+    const url = spriteUrl(entry);
+    if (S && S.load && url) {
+      S.load(url, function (res) { if (res && res.status === "ok") img.src = res.data; });
+    }
+    return img;
+  }
+
+  // 進遊戲就把所有立繪預先載好放快取，顯示時直接出真圖。
+  function preloadAllSprites() {
+    const S = window.Abyss.Sprites, G = window.GAME_DATA || {};
+    if (!S || !S.preload) return;
+    const urls = [];
+    SHOWCASE.forEach(function (e) { const u = spriteUrl(e); if (u) urls.push(u); });
+    Object.keys(G.monsters || {}).forEach(function (id) { urls.push("assets/images/monsters/" + id + ".png"); });
+    Object.keys(G.items || {}).forEach(function (id) { urls.push("assets/images/items/" + id + ".png"); });
+    Object.keys(G.equipment || {}).forEach(function (id) { urls.push("assets/images/equipment/" + id + ".png"); });
+    Object.keys(G.classes || {}).forEach(function (id) { urls.push("assets/images/portraits/" + id + ".png"); });
+    S.preload(urls);
+    // 英雄全身圖也順便暖一下瀏覽器快取（不需去背處理）。
+    SHOWCASE.forEach(function (e) { if (e.kind === "hero" && e.src) { const im = new Image(); im.src = e.src; } });
   }
 
   // 換一個新的主視覺（進入主選單時呼叫）。
@@ -84,4 +112,7 @@
     refreshShowcase: refreshShowcase,
     showcaseCount: function () { return SHOWCASE.length; }
   };
+
+  // 一載入就開始預先載入所有立繪，之後主選單/戰鬥/背包顯示都直接出真圖。
+  preloadAllSprites();
 })();
