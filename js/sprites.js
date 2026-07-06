@@ -64,6 +64,15 @@ window.Abyss.Sprites = (function () {
       if (py > 0) tryPush(px, py - 1);
       if (py < h - 1) tryPush(px, py + 1);
     }
+
+    // 補內洞：被主體圈住、顏色幾乎等於背景的封閉區塊（例如戒指中間的洞）不與邊緣相連、
+    // 洪水填不到 → 用很嚴的顏色門檻直接清掉；門檻嚴才不會吃到主體亮面（骨頭/蠟高光）。
+    var holeIn2 = 30 * 30;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      var hi = (y * w + x) * 4;
+      if (d[hi + 3] !== 0 && dist2(hi) < holeIn2 && whitish(hi)) d[hi + 3] = 0;
+    }
+
     // 收邊：仍不透明、但四鄰有透明且偏白的像素，再壓一次 alpha，消掉最外圈 1px 白框。
     var na = new Uint8Array(w * h);
     for (var q = 0; q < w * h; q++) na[q] = d[q * 4 + 3];
