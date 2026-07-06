@@ -12,12 +12,13 @@ window.Abyss.Audio = (function () {
 
   // 未來替換正式素材時填入實際路徑；目前檔案不存在會自動降級為占位合成音。
   // 真實音樂檔（存在就用檔案播放；沒列在這裡的 key 會退回占位合成音）。
+  // 值可為字串，或字串陣列（陣列會隨機挑一首，例如兩首遭遇戰音樂）。
   const MUSIC_FILES = {
-    menu_theme: "assets/audio/music/menu_theme.mp3"
-    // 之後做好樓層/戰鬥音樂，放這裡即可：
-    // floor01_explore: "assets/audio/music/floor01_explore.mp3",
-    // floor01_battle:  "assets/audio/music/floor01_battle.mp3",
-    // boss_hermon:     "assets/audio/music/boss_hermon.mp3"
+    menu_theme: "assets/audio/music/menu_theme.mp3",            // 登入音樂
+    floor01_explore: "assets/audio/music/explore.mp3",          // 平時走迷宮
+    floor01_battle: ["assets/audio/music/battle_a.mp3",
+                     "assets/audio/music/battle_b.mp3"],        // 遇到普通怪（兩首隨機）
+    boss_hermon: "assets/audio/music/boss.mp3"                  // BOSS
   };
   const SFX_FILES = {
     footstep: "assets/audio/sfx/footsteps_stone_01.ogg",
@@ -152,7 +153,8 @@ window.Abyss.Audio = (function () {
 
   // 真實音樂檔（HTMLAudio）：循環播放、淡入淡出，音量跟隨設定。
   function startFileMusic(key) {
-    const url = MUSIC_FILES[key];
+    let url = MUSIC_FILES[key];
+    if (Array.isArray(url)) url = url[Math.floor(Math.random() * url.length)]; // 多首隨機挑一首
     if (!url) return;
     const a = new Audio(url);
     a.loop = true; a.preload = "auto"; a.volume = 0;
