@@ -300,6 +300,67 @@ window.Abyss.UI = (function () {
     return parts.join("、");
   }
 
+  // 圖鑑：怪物遭遇後解鎖（未遭遇顯示剪影）；道具、裝備直接展示。
+  function renderCodex(category) {
+    const grid = document.getElementById("codex-grid");
+    const prog = document.getElementById("codex-progress");
+    if (!grid) return;
+    grid.innerHTML = "";
+    const codex = window.Abyss.Save.getCodex();
+    const G = window.GAME_DATA || {};
+    const S = window.Abyss.Sprites;
+
+    function makeCard(artNode, name, info, locked) {
+      const card = document.createElement("div");
+      card.className = "codex-card" + (locked ? " locked" : "");
+      const art = document.createElement("div"); art.className = "codex-art";
+      if (artNode) art.appendChild(artNode);
+      card.appendChild(art);
+      const n = document.createElement("div"); n.className = "codex-name"; n.textContent = name;
+      card.appendChild(n);
+      const f = document.createElement("div"); f.className = "codex-info"; f.textContent = info;
+      card.appendChild(f);
+      grid.appendChild(card);
+    }
+
+    if (category === "item") {
+      const ids = Object.keys(G.items || {});
+      ids.forEach(function (id) {
+        const it = G.items[id];
+        makeCard(S ? S.itemNode(id) : null, it.name, itemEffectShort(it), false);
+      });
+      if (prog) prog.textContent = "道具 " + ids.length + " 種";
+    } else if (category === "equip") {
+      const ids = Object.keys(G.equipment || {});
+      ids.forEach(function (id) {
+        const eq = G.equipment[id];
+        makeCard(S ? S.equipNode(id) : null, eq.name, (SLOT_NAMES[eq.slot] || "") + "　" + bonusText(eq.bonus), false);
+      });
+      if (prog) prog.textContent = "裝備 " + ids.length + " 件";
+    } else {
+      const ids = Object.keys(G.monsters || {});
+      let seen = 0;
+      ids.forEach(function (id) {
+        const m = G.monsters[id];
+        const unlocked = !!(codex.monsters && codex.monsters[m.codexId]);
+        if (unlocked) seen++;
+        let artNode = null;
+        if (unlocked && S) {
+          artNode = S.monsterNode(id);
+        } else if (S) {
+          artNode = document.createElement("div");
+          artNode.className = "sprite-wrap";
+          artNode.innerHTML = S.monster(id); // 剪影
+        }
+        makeCard(artNode,
+          unlocked ? m.name : "？？？",
+          unlocked ? ("HP " + m.maxHp + "　攻 " + m.attack + "　防 " + m.defense) : "尚未遭遇",
+          !unlocked);
+      });
+      if (prog) prog.textContent = "已遭遇 " + seen + " / " + ids.length;
+    }
+  }
+
   return {
     init: init,
     showScreen: showScreen,
@@ -311,6 +372,7 @@ window.Abyss.UI = (function () {
     showDeath: showDeath,
     showVictory: showVictory,
     renderEquip: renderEquip,
+    renderCodex: renderCodex,
     updateWallet: updateWallet,
     get el() { return el; }
   };

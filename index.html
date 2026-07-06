@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202607041623">
+  <link rel="stylesheet" href="css/style.css?v=202607061450">
 </head>
 <body>
   <noscript>此遊戲需要啟用 JavaScript。</noscript>
@@ -196,7 +196,7 @@
         <!-- 右下：功能鍵 -->
         <div class="maze-tools">
           <div class="disc-item"><button id="btn-equip" type="button" class="disc-btn"><span class="disc-ico">🎒</span></button><span class="disc-label">背包</span></div>
-          <div class="disc-item"><button id="btn-codex2" type="button" class="disc-btn" disabled><span class="disc-ico">📖</span></button><span class="disc-label">圖鑑</span></div>
+          <div class="disc-item"><button id="btn-codex2" type="button" class="disc-btn"><span class="disc-ico">📖</span></button><span class="disc-label">圖鑑</span></div>
           <div class="disc-item"><button id="btn-status" type="button" class="disc-btn"><span class="disc-ico">✦</span></button><span class="disc-label">狀態</span></div>
           <div class="disc-item"><button id="btn-maze-settings" type="button" class="disc-btn"><span class="disc-ico">⚙</span></button><span class="disc-label">設定</span></div>
         </div>
@@ -305,6 +305,21 @@
       </div>
     </div>
 
+    <!-- 圖鑑彈窗 -->
+    <div id="modal-codex" class="modal">
+      <div class="modal-box codex-box">
+        <h2>圖鑑</h2>
+        <div class="codex-tabs">
+          <button type="button" class="codex-tab active" data-cat="monster">怪物</button>
+          <button type="button" class="codex-tab" data-cat="item">道具</button>
+          <button type="button" class="codex-tab" data-cat="equip">裝備</button>
+        </div>
+        <div id="codex-progress" class="codex-progress"></div>
+        <div id="codex-grid" class="codex-grid"></div>
+        <button id="btn-codex-close" type="button" class="btn primary">關閉</button>
+      </div>
+    </div>
+
     <!-- 音訊設定彈窗 -->
     <div id="modal-audio" class="modal">
       <div class="modal-box">
@@ -369,16 +384,16 @@
   <script src="data/floors/floor01.js"></script>
 
   <!-- 程式邏輯 -->
-  <script src="js/save.js?v=202607041623"></script>
-  <script src="js/audio.js?v=202607041623"></script>
-  <script src="js/sprites.js?v=202607041623"></script>
-  <script src="js/effects.js?v=202607041623"></script>
-  <script src="js/player.js?v=202607041623"></script>
-  <script src="js/maze.js?v=202607041623"></script>
-  <script src="js/battle.js?v=202607041623"></script>
-  <script src="js/ui.js?v=202607041623"></script>
-  <script src="js/menu.js?v=202607041623"></script>
-  <script src="js/game.js?v=202607041623"></script>
-  <script src="js/main.js?v=202607041623"></script>
+  <script src="js/save.js?v=202607061450"></script>
+  <script src="js/audio.js?v=202607061450"></script>
+  <script src="js/sprites.js?v=202607061450"></script>
+  <script src="js/effects.js?v=202607061450"></script>
+  <script src="js/player.js?v=202607061450"></script>
+  <script src="js/maze.js?v=202607061450"></script>
+  <script src="js/battle.js?v=202607061450"></script>
+  <script src="js/ui.js?v=202607061450"></script>
+  <script src="js/menu.js?v=202607061450"></script>
+  <script src="js/game.js?v=202607061450"></script>
+  <script src="js/main.js?v=202607061450"></script>
 </body>
 </html>

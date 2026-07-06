@@ -130,8 +130,24 @@
     bindButton("btn-fullscreen", toggleFullscreen);
     bindButton("btn-volume", function () { toggleTrack("sfx"); updateAudioChips(); });
     bindButton("btn-music", function () { toggleTrack("music"); updateAudioChips(); });
-    // 圖鑑尚未製作，先停用（資料已在記錄，日後補瀏覽介面）。
-    if ($("btn-codex")) $("btn-codex").disabled = true;
+    // 圖鑑（主選單與迷宮都可開）。
+    let codexCat = "monster";
+    function openCodex() {
+      Abyss.UI.renderCodex(codexCat);
+      Abyss.UI.toggleModal("modal-codex", true);
+      Abyss.Audio.playSfx("codex");
+    }
+    bindButton("btn-codex", openCodex);
+    bindButton("btn-codex2", openCodex);
+    bindButton("btn-codex-close", function () { Abyss.UI.toggleModal("modal-codex", false); });
+    document.addEventListener("click", function (e) {
+      const tab = e.target.closest(".codex-tab");
+      if (!tab) return;
+      codexCat = tab.getAttribute("data-cat");
+      Array.prototype.forEach.call(document.querySelectorAll(".codex-tab"),
+        function (t) { t.classList.toggle("active", t === tab); });
+      Abyss.UI.renderCodex(codexCat);
+    });
     bindButton("btn-audio-close", function () { Abyss.UI.toggleModal("modal-audio", false); });
     bindSlider("vol-master", Abyss.Audio.setMasterVolume);
     bindSlider("vol-music", Abyss.Audio.setMusicVolume);
