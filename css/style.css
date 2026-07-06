@@ -492,38 +492,12 @@ h3 { margin: 0 0 8px; color: var(--gold-bright); }
 .equip-slot .equip-card { flex-direction: column; text-align: center; gap: 4px; border: none; background: none; padding: 0; }
 .equip-slot .equip-card-art { width: 56px; height: 56px; flex: 0 0 56px; }
 
-/* ---- 響應式 ---- */
-@media (max-width: 620px) {
-  #app { padding: 8px; }
-  .panel { padding: 20px; }
-  .maze-top { flex-direction: column; }
-  .maze-side { flex-direction: row; flex: 0 0 auto; }
-  .minimap { flex: 0 0 120px; }
-  .hud { flex: 1; }
-  .battle-actions { grid-template-columns: repeat(2, 1fr); }
-  .battle-lower { flex-direction: column; }
-}
-
-/* 手機橫向：壓縮版面，讓迷宮方向鍵與戰鬥按鈕留在可見範圍內 */
-@media (max-height: 480px) and (orientation: landscape) {
-  #app { padding: 6px; align-items: start; }
-  .maze-layout { gap: 8px; }
-  .maze-top { flex-direction: row; align-items: flex-start; }
-  .view-wrap { flex: 1 1 auto; display: flex; justify-content: center; align-items: flex-start; }
-  /* 依高度限制畫布尺寸並維持比例，替下方按鈕留出空間。 */
-  #view-canvas { width: auto; height: auto; max-height: 48vh; max-width: 100%; }
-  .maze-side { flex-direction: column; flex: 0 0 118px; gap: 6px; }
-  .minimap { max-height: 84px; }
-  .hud { font-size: 0.72em; padding: 6px; }
-  .maze-message { min-height: 0; padding: 6px 10px; font-size: 0.9em; }
-  .dpad { gap: 8px; }
-  .dbtn { min-height: 40px; font-size: 0.95em; }
-
-  #battle-scene { min-height: 0; max-height: 42vh; }
-  .battle-log { height: 60px; }
-  .battle-hint { min-height: 0; }
-  .btn.action { min-height: 40px; }
-}
+/* ---- 響應式 ----
+   註：整個畫面現在是固定 1920×1080 舞台，由 JS(fitStage) 依螢幕大小「等比縮放置中」，
+   手機／平板都會自動縮到合適大小，不再需要舊版那套會壓扁畫布的 media query。
+   舊的 @media(max-width:620px) 與 @media(max-height:480px) 已移除——
+   它們會把 #view-canvas 限制成 max-height:48vh，在縮放舞台裡導致迷宮畫面被壓成一條、
+   手機橫拿也看不到路（只剩小地圖）。 */
 
 
 /* ============================================================
@@ -1044,3 +1018,20 @@ body { margin: 0; background: #000; overflow: hidden; }
 .enter-embers i:nth-child(5) { left: 78%; animation-delay: 4.6s; }
 .enter-embers i:nth-child(6) { left: 88%; animation-delay: 5.5s; }
 @media (prefers-reduced-motion: reduce) { .enter-hint, .enter-embers i { animation: none; } .enter-hint { opacity: 0.85; } }
+
+/* ============================================================
+   手機直拿提示（只在「直向且窄螢幕」＝手機／小平板直拿時出現，橫向自動消失）
+   ============================================================ */
+.rotate-hint { display: none; }
+@media (orientation: portrait) and (max-width: 900px) {
+  .rotate-hint { display: flex; position: fixed; inset: 0; z-index: 10000;
+    align-items: center; justify-content: center; text-align: center; padding: 32px;
+    background: radial-gradient(120% 130% at 50% 40%, #241a12 0%, #140f0d 50%, #070708 100%); }
+}
+.rotate-inner { color: var(--text-main); font-family: var(--font-serif); max-width: 460px; }
+.rotate-icon { font-size: 96px; line-height: 1; display: inline-block; animation: rotatehint 2.6s ease-in-out infinite; }
+.rotate-msg { font-size: 30px; font-weight: 800; color: #caa96a; letter-spacing: 0.06em;
+  margin: 26px 0 12px; text-shadow: 0 2px 8px #000; }
+.rotate-sub { font-family: var(--font-sans); font-size: 17px; color: var(--text-muted); line-height: 1.7; margin: 0; }
+@keyframes rotatehint { 0%, 55%, 100% { transform: rotate(0deg); } 80% { transform: rotate(-90deg); } }
+@media (prefers-reduced-motion: reduce) { .rotate-icon { animation: none; } }
