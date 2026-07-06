@@ -74,9 +74,17 @@ window.Abyss.Maze = (function () {
       start: t === "S",
       boss: t === "B",
       exit: t === "E",
-      // 一般可觸發遭遇的走道（排除起點、Boss、出口）。
+      treasure: t === "T",
+      // 一般可觸發遭遇的走道（排除起點、Boss、出口、寶箱）。
       encounterZone: t === "."
     };
+  }
+
+  // 開過的寶箱格 → 變回普通走道，避免重複觸發（同一次遊戲內有效）。
+  function consumeTile(x, y) {
+    if (!inBounds(x, y)) return;
+    const row = grid[y];
+    grid[y] = row.substring(0, x) + "." + row.substring(x + 1);
   }
 
   function current() {
@@ -344,6 +352,7 @@ window.Abyss.Maze = (function () {
         else if (t === "B") color = "#7a2f3a";
         else if (t === "E") color = "#3f7a4a";
         else if (t === "S") color = "#3a5a7a";
+        else if (t === "T") color = "#b58a3a"; // 寶箱＝金色
         ctx.fillStyle = color;
         ctx.fillRect(px, py, cell - 1, cell - 1);
       }
@@ -391,6 +400,7 @@ window.Abyss.Maze = (function () {
     renderMinimap,
     explorePercent,
     zoomMinimap,
+    consumeTile,
     get floor() { return floor; }
   };
 })();

@@ -1045,3 +1045,17 @@ body { margin: 0; background: #000; overflow: hidden; }
 .rotate-sub { font-family: var(--font-sans); font-size: 17px; color: var(--text-muted); line-height: 1.7; margin: 0; }
 @keyframes rotatehint { 0%, 55%, 100% { transform: rotate(0deg); } 80% { transform: rotate(-90deg); } }
 @media (prefers-reduced-motion: reduce) { .rotate-icon { animation: none; } }
+
+/* ============================================================
+   寶箱揭示（走到寶箱格時，寶箱圖淡入置中約 1 秒，再進入拿寶或擬態怪戰鬥）
+   ============================================================ */
+.chest-reveal { position: absolute; inset: 0; z-index: 250; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 45%, rgba(20,15,12,0.55), rgba(0,0,0,0.82));
+  opacity: 0; transition: opacity 0.32s ease; pointer-events: none; }
+.chest-reveal.show { opacity: 1; }
+.chest-reveal.out { opacity: 0; }
+.chest-reveal img { height: 66%; max-width: 62%; object-fit: contain; border: 3px solid #6a5636; border-radius: 12px;
+  box-shadow: inset 0 0 0 1px #120e0a, 0 0 60px rgba(150,90,30,0.35), 0 16px 48px rgba(0,0,0,0.85);
+  transform: scale(0.86); transition: transform 0.4s cubic-bezier(0.2,0.9,0.3,1.2); }
+.chest-reveal.show img { transform: scale(1); }
+@media (prefers-reduced-motion: reduce) { .chest-reveal img { transition: none; transform: none; } }

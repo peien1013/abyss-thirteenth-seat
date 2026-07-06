@@ -147,6 +147,9 @@ window.Abyss.Game = (function () {
       UI().mazeMessage("一道無面的身影擋住去路……");
       return startBossBattle();
     }
+    if (cell.treasure) {
+      return openChest(cell);
+    }
 
     // 隨機遭遇。
     const enc = data().encounters.floor01;
@@ -185,6 +188,69 @@ window.Abyss.Game = (function () {
       bossLines: BOSS_LINES,
       onEnd: onBattleEnd
     });
+  }
+
+  // ---- 寶箱 ----
+  // 走到寶箱格：先秀出寶箱圖，接著三成是擬態噬客（寶箱怪）、七成是寶物。
+  function openChest(cell) {
+    busy = true;
+    Maze().consumeTile(cell.x, cell.y); // 開過就變普通走道，不重複觸發
+    renderMaze();
+    const mimic = Math.random() < 0.3;
+    showChestReveal(mimic, function () {
+      if (mimic) {
+        UI().mazeMessage("你伸手掀開寶箱——箱蓋猛然裂成一嘴利齒！");
+        return startMimicBattle();
+      }
+      window.Abyss.Audio.playSfx("levelup");
+      const gold = randInt(12, 30);
+      run.player.gold += gold;
+      let msg = "你打開寶箱，裡面有 💰 +" + gold + " 金幣";
+      const drop = rollEquipmentDrop(true); // 寶箱＝必給可用裝備（若還有沒拿過的）
+      if (drop && drop.full) {
+        msg += "，還有【" + drop.item.name + "】，但包包滿了，只能留在原地。";
+      } else if (drop && drop.item) {
+        msg += "，還有 ✨【" + drop.item.name + "】！（點右邊 🎒 包包 穿上）";
+      } else {
+        msg += "。";
+      }
+      UI().mazeMessage(msg);
+      busy = false;
+      persist();
+    });
+  }
+
+  function startMimicBattle() {
+    busy = true;
+    window.Abyss.Audio.playMusic("floor01_battle");
+    UI().showScreen("screen-battle");
+    renderBattleBackdrop();
+    window.Abyss.Battle.start({
+      player: run.player,
+      isBoss: false,
+      encounter: data().encounters.floor01,
+      fixedFoes: ["mimic_chest"],
+      areaName: "第一層・" + floor().name,
+      onEnd: onBattleEnd
+    });
+  }
+
+  // 寶箱揭示：把寶箱圖淡入置中約 1.1 秒後淡出，再執行 done。
+  function showChestReveal(mimic, done) {
+    const host = document.getElementById("app") || document.body;
+    const ov = document.createElement("div");
+    ov.className = "chest-reveal";
+    ov.innerHTML = "<img src='assets/images/items/treasure_chest.png' alt=''>";
+    host.appendChild(ov);
+    window.Abyss.Audio.playSfx(mimic ? "wall_bump" : "ui_confirm");
+    window.requestAnimationFrame(function () { ov.classList.add("show"); });
+    window.setTimeout(function () {
+      ov.classList.add("out");
+      window.setTimeout(function () {
+        if (ov.parentNode) ov.parentNode.removeChild(ov);
+        if (done) done();
+      }, 350);
+    }, 1100);
   }
 
   function onBattleEnd(result) {
