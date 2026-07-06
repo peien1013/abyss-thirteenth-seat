@@ -55,6 +55,127 @@ window.GAME_DATA.monsters = {
     skills: ["spore", "cry"],
     codexId: "monster_005"
   },
+  fallen_knight: {
+    id: "fallen_knight",
+    name: "殞落甲騎",
+    maxHp: 46,
+    attack: 13,
+    defense: 8,
+    speed: 6,
+    exp: 18,
+    skills: ["grave_cleave", "guard"],
+    codexId: "monster_006"
+  },
+  winged_fiend: {
+    id: "winged_fiend",
+    name: "裂喉翼魔",
+    maxHp: 30,
+    attack: 12,
+    defense: 4,
+    speed: 13,
+    exp: 15,
+    skills: ["dive", "rend"],
+    codexId: "monster_007"
+  },
+  mourning_saint: {
+    id: "mourning_saint",
+    name: "縞衣哀聖",
+    maxHp: 38,
+    attack: 11,
+    defense: 5,
+    speed: 8,
+    exp: 16,
+    skills: ["wail", "curse"],
+    codexId: "monster_008"
+  },
+  candle_watcher: {
+    id: "candle_watcher",
+    name: "千燭窺眼",
+    maxHp: 40,
+    attack: 10,
+    defense: 6,
+    speed: 5,
+    exp: 16,
+    skills: ["gaze", "ember"],
+    codexId: "monster_009"
+  },
+  gaunt_ghoul: {
+    id: "gaunt_ghoul",
+    name: "枯屍餓鬼",
+    maxHp: 32,
+    attack: 11,
+    defense: 4,
+    speed: 9,
+    exp: 13,
+    skills: ["claw", "feast"],
+    codexId: "monster_010"
+  },
+  chained_hound: {
+    id: "chained_hound",
+    name: "焰鏈獄犬",
+    maxHp: 34,
+    attack: 13,
+    defense: 5,
+    speed: 12,
+    exp: 15,
+    skills: ["bite", "ember"],
+    codexId: "monster_011"
+  },
+  raven_priest: {
+    id: "raven_priest",
+    name: "渡鴉祭司",
+    maxHp: 36,
+    attack: 11,
+    defense: 6,
+    speed: 9,
+    exp: 16,
+    skills: ["curse", "screech"],
+    codexId: "monster_012"
+  },
+  stone_gargoyle: {
+    id: "stone_gargoyle",
+    name: "守殿石魔",
+    maxHp: 50,
+    attack: 12,
+    defense: 11,
+    speed: 4,
+    exp: 19,
+    skills: ["stone_slam", "guard"],
+    codexId: "monster_013"
+  },
+  fungal_ent: {
+    id: "fungal_ent",
+    name: "腐林蕈魔",
+    maxHp: 42,
+    attack: 9,
+    defense: 7,
+    speed: 3,
+    exp: 14,
+    skills: ["spore", "root_bind"],
+    codexId: "monster_014"
+  },
+  bound_wraith: {
+    id: "bound_wraith",
+    name: "縛魂囚徒",
+    maxHp: 30,
+    attack: 12,
+    defense: 3,
+    speed: 10,
+    exp: 14,
+    skills: ["soul_flame", "wail"],
+    codexId: "monster_015"
+  },
+  mimic_chest: {
+    id: "mimic_chest",
+    name: "擬態噬客",
+    maxHp: 44,
+    attack: 14,
+    defense: 7,
+    speed: 7,
+    exp: 24,
+    skills: ["ambush", "chomp"],
+    codexId: "monster_016"
+  },
   hermon: {
     id: "hermon",
     name: "無面守門人・赫爾蒙",

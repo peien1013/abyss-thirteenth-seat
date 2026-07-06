@@ -112,7 +112,13 @@ window.Abyss.Battle = (function () {
     config = opts;
 
     const enc = opts.encounter;
-    const enemies = opts.isBoss ? generateBossEncounter(enc) : generateNormalEncounter(enc);
+    // fixedFoes：指定固定敵人（例如寶箱怪擬態），不走隨機池。
+    let enemies;
+    if (opts.fixedFoes && opts.fixedFoes.length) {
+      enemies = opts.fixedFoes.map(function (id) { return makeEnemyInstance(id, 1, ""); });
+    } else {
+      enemies = opts.isBoss ? generateBossEncounter(enc) : generateNormalEncounter(enc);
+    }
 
     state = {
       enemies: enemies,

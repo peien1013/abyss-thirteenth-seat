@@ -22,10 +22,10 @@ window.Abyss.Sprites = (function () {
     var d = im.data;
     function corner(x, y) { var i = (y * w + x) * 4; return [d[i], d[i + 1], d[i + 2], d[i + 3]]; }
     var cs = [corner(0, 0), corner(w - 1, 0), corner(0, h - 1), corner(w - 1, h - 1)];
-    for (var k = 0; k < 4; k++) if (cs[k][3] < 20) return; // 已透明 → 原本就有去背，直接沿用
-    // 背景是「淺色或中灰」才去背（涵蓋近白與 Q 版的灰底）；深色背景（如正常版半身）保留。
+    for (var k = 0; k < 4; k++) if (cs[k][3] < 20) return "cutout"; // 已透明 → 原本就有去背，直接沿用
+    // 背景是「淺色或中灰」才去背（涵蓋近白與 Q 版的灰底）；深色背景（如場景半身圖）→ 回報 framed，改用哥德外框呈現。
     function light(c) { return c[0] > 165 && c[1] > 165 && c[2] > 165; }
-    for (k = 0; k < 4; k++) if (!light(cs[k])) return;
+    for (k = 0; k < 4; k++) if (!light(cs[k])) return "framed";
     var sr = (cs[0][0] + cs[1][0] + cs[2][0] + cs[3][0]) / 4;
     var sg = (cs[0][1] + cs[1][1] + cs[2][1] + cs[3][1]) / 4;
     var sb = (cs[0][2] + cs[1][2] + cs[2][2] + cs[3][2]) / 4;
@@ -84,6 +84,7 @@ window.Abyss.Sprites = (function () {
       if (touchesBg && whitish(ii)) na[pp] = Math.round(d[ii + 3] * 0.3);
     }
     for (q = 0; q < w * h; q++) d[q * 4 + 3] = na[q];
+    return "cutout";
   }
 
   // 載入 → 縮圖 → 去背 → 回傳 dataURL。
@@ -94,21 +95,26 @@ window.Abyss.Sprites = (function () {
     var c = document.createElement("canvas"); c.width = w; c.height = h;
     var ctx = c.getContext("2d");
     ctx.drawImage(img, 0, 0, w, h);
+    var framed = false;
     try {
       var im = ctx.getImageData(0, 0, w, h);
-      keyOutBackground(im, w, h);
-      ctx.putImageData(im, 0, 0);
+      var mode = keyOutBackground(im, w, h);
+      if (mode === "framed") {
+        framed = true;               // 深色背景：不去背，改由外框（見 CSS .sprite-wrap.framed）呈現
+      } else {
+        ctx.putImageData(im, 0, 0);  // 白底/已透明：套用去背結果
+      }
     } catch (e) { /* 跨域污染等情況：略過去背 */ }
-    return c.toDataURL("image/png");
+    return { data: c.toDataURL("image/png"), framed: framed };
   }
 
   function ensure(url, cb) {
     if (cache[url]) { cb(cache[url]); return; }
     var img = new Image();
     img.onload = function () {
-      var data;
-      try { data = processImage(img); } catch (e) { data = url; }
-      cache[url] = { status: "ok", data: data };
+      var out;
+      try { out = processImage(img); } catch (e) { out = { data: url, framed: false }; }
+      cache[url] = { status: "ok", data: out.data, framed: out.framed };
       cb(cache[url]);
     };
     img.onerror = function () { cache[url] = { status: "missing" }; cb(cache[url]); };
@@ -121,13 +127,17 @@ window.Abyss.Sprites = (function () {
     wrap.className = "sprite-wrap " + (extraClass || "");
     var e = cache[url];
     if (e && e.status === "ok") {
+      if (e.framed) wrap.className += " framed";
       wrap.innerHTML = "<img class='sprite-img' src='" + e.data + "' alt=''>";
       return wrap;
     }
     wrap.innerHTML = placeholderSvg;
     if (!e || e.status !== "missing") {
       ensure(url, function (res) {
-        if (res.status === "ok") wrap.innerHTML = "<img class='sprite-img fade-in' src='" + res.data + "' alt=''>";
+        if (res.status === "ok") {
+          if (res.framed) wrap.className += " framed";
+          wrap.innerHTML = "<img class='sprite-img fade-in' src='" + res.data + "' alt=''>";
+        }
       });
     }
     return wrap;

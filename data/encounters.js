@@ -21,7 +21,17 @@ window.GAME_DATA.encounters = {
       "candle_slime",
       "rotten_skeleton",
       "broken_fang_bat",
-      "crying_mushroom"
+      "crying_mushroom",
+      "gaunt_ghoul",
+      "bound_wraith",
+      "winged_fiend",
+      "chained_hound",
+      "candle_watcher",
+      "raven_priest",
+      "mourning_saint",
+      "fungal_ent",
+      "fallen_knight",
+      "stone_gargoyle"
     ],
     bossId: "hermon"
   }
