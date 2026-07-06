@@ -1018,3 +1018,29 @@ body { margin: 0; background: #000; overflow: hidden; }
 .codex-name { font-family: var(--font-serif); font-size: 16px; color: #e6d2a8; margin-bottom: 4px; }
 .codex-card.locked .codex-name { color: var(--text-dark); letter-spacing: 0.15em; }
 .codex-info { font-size: 12px; color: var(--text-muted); line-height: 1.45; }
+
+/* ============================================================
+   點擊進入開場（第一次點擊＝進場＋開啟音樂）
+   ============================================================ */
+.enter-splash { position: fixed; inset: 0; z-index: 9999; cursor: pointer; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(120% 130% at 50% 38%, #2a1c12 0%, #140f0d 46%, #070708 100%);
+  transition: opacity 0.7s ease; }
+.enter-splash.hide { opacity: 0; pointer-events: none; }
+.enter-inner { text-align: center; position: relative; z-index: 2; padding: 20px; }
+.enter-title { font-family: var(--font-serif); font-weight: 900; font-size: 96px; color: #caa96a;
+  letter-spacing: 0.08em; margin: 0; line-height: 1.02; text-shadow: 0 3px 8px #000, 0 0 40px rgba(150, 40, 30, 0.4); }
+.enter-sub { font-family: var(--font-serif); color: #a62b32; letter-spacing: 0.34em; font-size: 26px; margin: 14px 0 0; }
+.enter-hint { font-family: var(--font-sans); color: var(--text-muted); letter-spacing: 0.16em; font-size: 20px;
+  margin: 64px 0 0; animation: enterpulse 1.8s ease-in-out infinite; }
+@keyframes enterpulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+.enter-embers i { position: absolute; bottom: -12px; width: 4px; height: 4px; border-radius: 50%;
+  background: #e0a94e; box-shadow: 0 0 8px #d08a3a; opacity: 0; animation: menuember 6.5s linear infinite; }
+.enter-embers i:nth-child(1) { left: 18%; animation-delay: 0s; }
+.enter-embers i:nth-child(2) { left: 34%; animation-delay: 1.7s; }
+.enter-embers i:nth-child(3) { left: 50%; animation-delay: 3.1s; }
+.enter-embers i:nth-child(4) { left: 63%; animation-delay: 2.2s; }
+.enter-embers i:nth-child(5) { left: 78%; animation-delay: 4.6s; }
+.enter-embers i:nth-child(6) { left: 88%; animation-delay: 5.5s; }
+@media (prefers-reduced-motion: reduce) { .enter-hint, .enter-embers i { animation: none; } .enter-hint { opacity: 0.85; } }

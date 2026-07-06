@@ -210,6 +210,18 @@
     fitStage();
     window.addEventListener("resize", fitStage);
 
+    // 點擊進入開場：第一次點擊＝解鎖音訊（開始播放登入音樂）＋淡出開場畫面。
+    const splash = $("enter-splash");
+    if (splash) {
+      const enterGame = function () {
+        Abyss.Audio.enable();
+        splash.classList.add("hide");
+        window.setTimeout(function () { splash.style.display = "none"; }, 750);
+        splash.removeEventListener("pointerdown", enterGame);
+      };
+      splash.addEventListener("pointerdown", enterGame);
+    }
+
     Abyss.UI.showScreen("screen-start");
   }
 
