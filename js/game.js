@@ -65,12 +65,33 @@ window.Abyss.Game = (function () {
     UI().renderMazeHud(run.player, floor().name, Maze().explorePercent());
   }
 
-  // 戰鬥背景＝當前所在走廊的第一人稱視角，怪物就站在其中。
+  // 戰鬥背景：若放了 GPT 場景圖（assets/images/scenes/battle_bg.png/.jpg）就用它，
+  // 否則退回「當前所在走廊的第一人稱視角」。放圖進去、重新整理即自動生效，毋須改程式。
+  let battleBg = null; // null=未試 / "missing"=沒圖 / Image=已載入
+  const BATTLE_BG_URLS = ["assets/images/scenes/battle_bg.jpg", "assets/images/scenes/battle_bg.png"];
+  function drawCover(c, img) {
+    const ctx = c.getContext("2d");
+    const s = Math.max(c.width / img.naturalWidth, c.height / img.naturalHeight);
+    const w = img.naturalWidth * s, h = img.naturalHeight * s;
+    ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
+  }
+  function tryLoadBattleBg(urls, i, onOk, onFail) {
+    if (i >= urls.length) return onFail();
+    const img = new Image();
+    img.onload = function () { onOk(img); };
+    img.onerror = function () { tryLoadBattleBg(urls, i + 1, onOk, onFail); };
+    img.src = urls[i];
+  }
   function renderBattleBackdrop() {
     const c = document.getElementById("battle-bg");
     if (!c) return;
     if (c.width !== 1280 || c.height !== 720) { c.width = 1280; c.height = 720; }
-    Maze().render(c);
+    if (battleBg && battleBg !== "missing") { drawCover(c, battleBg); return; }
+    Maze().render(c); // 沒圖（或還沒載到）時：先畫走廊視角
+    if (battleBg === "missing") return;
+    tryLoadBattleBg(BATTLE_BG_URLS, 0,
+      function (img) { battleBg = img; const cc = document.getElementById("battle-bg"); if (cc) drawCover(cc, img); },
+      function () { battleBg = "missing"; });
   }
 
   // ---- 裝備 ----

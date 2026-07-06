@@ -155,9 +155,9 @@ window.Abyss.Maze = (function () {
   }
   function cellSeed(x, y) { return (((x + 7) * 73856093) ^ ((y + 13) * 19349663)) >>> 0; }
 
-  const WALL_BASE = "#6f6150";  // 灰褐石
-  const FLOOR_BASE = "#332c28";
-  const CEIL_BASE = "#1b171d";
+  const WALL_BASE = "#786249";  // 暖褐石（偏地窖燭光色）
+  const FLOOR_BASE = "#2b221c";  // 較深較暖，配合濕滑反光
+  const CEIL_BASE = "#161019";
 
   // 正面牆：石塊接縫、明暗、潮濕與少量裂縫 / 血跡 / 符文。
   function stoneFace(ctx, l, t, r, b, ds, sx, sy) {
@@ -300,23 +300,30 @@ window.Abyss.Maze = (function () {
       }
     }
 
-    // 火把暖光：由下方中央往上散開（燭火琥珀＝安全感）。
-    const torch = ctx.createRadialGradient(W / 2, H * 0.82, H * 0.05, W / 2, H * 0.82, H * 0.7);
-    torch.addColorStop(0, "rgba(230,170,90,0.22)");
-    torch.addColorStop(0.5, "rgba(200,130,60,0.08)");
+    // 濕滑地面反光：下方一道暖色倒影，像積水反射著火光（地窖氛圍）。
+    const wet = ctx.createLinearGradient(0, H * 0.6, 0, H);
+    wet.addColorStop(0, "rgba(0,0,0,0)");
+    wet.addColorStop(0.72, "rgba(150,95,45,0.05)");
+    wet.addColorStop(1, "rgba(210,150,75,0.13)");
+    ctx.fillStyle = wet; ctx.fillRect(0, H * 0.55, W, H * 0.45);
+
+    // 火把暖光：由下方中央往上散開，較強、較暖（燭火琥珀）。
+    const torch = ctx.createRadialGradient(W / 2, H * 0.80, H * 0.04, W / 2, H * 0.78, H * 0.84);
+    torch.addColorStop(0, "rgba(248,182,96,0.30)");
+    torch.addColorStop(0.45, "rgba(212,136,60,0.12)");
     torch.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = torch; ctx.fillRect(0, 0, W, H);
 
-    // 灰塵 / 薄霧。
-    const fog = ctx.createLinearGradient(0, H * 0.4, 0, H);
-    fog.addColorStop(0, "rgba(120,110,120,0.05)");
-    fog.addColorStop(1, "rgba(60,60,70,0)");
-    ctx.fillStyle = fog; ctx.fillRect(0, 0, W, H);
+    // 深處暖霧：遠端不是死黑，帶一點暖棕的霧，增加縱深。
+    const haze = ctx.createRadialGradient(W / 2, H * 0.44, H * 0.02, W / 2, H * 0.44, H * 0.5);
+    haze.addColorStop(0, "rgba(92,62,44,0.22)");
+    haze.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = haze; ctx.fillRect(0, 0, W, H);
 
-    // 暗角。
-    const grad = ctx.createRadialGradient(W / 2, H / 2, H * 0.18, W / 2, H / 2, H * 0.78);
+    // 暗角（暖黑）。
+    const grad = ctx.createRadialGradient(W / 2, H / 2, H * 0.16, W / 2, H / 2, H * 0.8);
     grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(1, "rgba(0,0,0,0.6)");
+    grad.addColorStop(1, "rgba(6,3,2,0.66)");
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
   }
 
