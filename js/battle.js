@@ -187,7 +187,7 @@ window.Abyss.Battle = (function () {
     // 左下橢圓頭像（職業變動才重建）。
     if (dom.portrait && dom.portrait.getAttribute("data-cls") !== player.classId) {
       dom.portrait.innerHTML = "";
-      if (window.Abyss.Sprites) dom.portrait.appendChild(window.Abyss.Sprites.portraitNode(player.classId));
+      if (window.Abyss.Sprites) dom.portrait.appendChild(window.Abyss.Sprites.heroPortraitNode(player.classId));
       dom.portrait.setAttribute("data-cls", player.classId);
     }
   }

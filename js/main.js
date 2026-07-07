@@ -17,6 +17,20 @@
     app.style.transform = "translate(" + x + "px," + y + "px) scale(" + s + ")";
   }
 
+  // 場景背景圖：放了 assets/images/scenes/<name>（.png 本機／.jpg 部署）就套為畫面背景。
+  // scrim = 疊在圖上的暗色漸層，確保文字／面板讀得清楚。放圖進去即自動生效，毋須改程式。
+  function setSceneBg(el, name, scrim) {
+    if (!el) return;
+    const base = "assets/images/scenes/" + name;
+    const apply = function (url) {
+      el.style.backgroundImage = (scrim ? scrim + ", " : "") + "url('" + url + "')";
+      el.style.backgroundSize = "cover";
+      el.style.backgroundPosition = "center";
+    };
+    const probe = function (url, ok, fail) { const im = new Image(); im.onload = function () { ok(url); }; im.onerror = fail; im.src = url; };
+    probe(base + ".jpg", apply, function () { probe(base + ".png", apply, function () {}); });
+  }
+
   // 開發用：按 R 切換參考圖疊層透明度（0 / 50% / 100%），供逐像素對齊。
   const REF_LEVELS = [0, 0.5, 1];
   let refIdx = 0;
@@ -209,6 +223,14 @@
     // 1920×1080 舞台縮放。
     fitStage();
     window.addEventListener("resize", fitStage);
+
+    // 場景背景圖（主選單／死亡／勝利）。有放圖就套上，沒放則維持原本樣式。
+    setSceneBg(document.querySelector("#screen-start .menu-bg"), "menu_bg",
+      "linear-gradient(rgba(9,7,6,0.28), rgba(6,4,4,0.55))");
+    setSceneBg($("screen-death"), "death_bg",
+      "linear-gradient(rgba(6,5,6,0.5), rgba(3,3,4,0.7))");
+    setSceneBg($("screen-victory"), "victory_bg",
+      "linear-gradient(rgba(10,8,5,0.4), rgba(5,4,3,0.62))");
 
     // 點擊進入開場：第一次點擊＝解鎖音訊（開始播放登入音樂）＋淡出開場畫面。
     const splash = $("enter-splash");

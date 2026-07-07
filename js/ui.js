@@ -132,7 +132,7 @@ window.Abyss.UI = (function () {
     // 左下橢圓頭像（只在職業變動時重建，避免每步重繪）。
     if (el.mazePortrait && el.mazePortrait.getAttribute("data-cls") !== player.classId) {
       el.mazePortrait.innerHTML = "";
-      el.mazePortrait.appendChild(window.Abyss.Sprites.portraitNode(player.classId));
+      el.mazePortrait.appendChild(window.Abyss.Sprites.heroPortraitNode(player.classId));
       el.mazePortrait.setAttribute("data-cls", player.classId);
     }
   }

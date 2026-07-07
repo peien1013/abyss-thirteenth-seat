@@ -336,6 +336,15 @@ window.Abyss.Sprites = (function () {
   function portraitNode(classId) {
     return node("assets/images/portraits/" + classId + ".png", portraitSvg(classId), "portrait");
   }
+  // 左下角英雄圖：用「正常畫風全身圖」裁成頭像（臉／上半身），而非 Q 版頭像。
+  // 全身圖在 assets/characters/<職業>_full.png（部署版是 .jpg），直接用 <img> 不去背，靠 CSS 裁切上半身。
+  function heroPortraitNode(classId) {
+    var wrap = document.createElement("div");
+    wrap.className = "sprite-wrap hero-portrait";
+    wrap.innerHTML = "<img class='sprite-img' alt='' src='assets/characters/" + classId + "_full.png' " +
+      "onerror=\"this.onerror=null;this.src='assets/characters/" + classId + "_full.jpg'\">";
+    return wrap;
+  }
 
   function equipPlaceholder() {
     return svg("", "<path d='M50 12 l32 20 -13 42 -38 0 -13 -42z' fill='#4a4238' stroke='#8a7238' stroke-width='2'/>" +
@@ -357,6 +366,7 @@ window.Abyss.Sprites = (function () {
     monsterNode: monsterNode,
     itemNode: itemNode,
     portraitNode: portraitNode,
+    heroPortraitNode: heroPortraitNode,
     equipNode: equipNode,
     load: ensure,     // 取得處理後的圖：load(url, function(res){ res.status==='ok' → res.data })
     preload: preload  // 預先載入一批 url
