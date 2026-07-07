@@ -253,21 +253,41 @@ window.Abyss.Maze = (function () {
     ctx.restore();
   }
 
-  // 迷宮走廊背景圖：放了 assets/images/scenes/maze_bg（.jpg 部署／.png 本機）就當「底層氛圍」，
-  // 動態牆／地板／天花板疊在上面（正前方牆接近不透明，清楚擋路）。沒圖則維持純程式繪製。
-  let bgImg = null; // null=未載 / "missing"=沒圖 / Image=已載入
-  const BG_URLS = ["assets/images/scenes/maze_bg.jpg", "assets/images/scenes/maze_bg.png"];
-  function loadBg(i) {
-    if (i >= BG_URLS.length) { bgImg = "missing"; return; }
+  // 迷宮走廊「多視圖」：依玩家前/左/右是否有路，顯示對應的走廊圖（放進 assets/images/scenes/ 即自動使用）。
+  //   前有路：corridor(直走) / corridor_left(左有路) / corridor_right(右有路) / corridor_both(左右都有路)
+  //   前是牆：wall(死路) / wall_left(牆前・可左轉) / wall_right(牆前・可右轉) / wall_both(牆前・可左右轉)
+  // 鍵＝「前_左_右」(1=有路 0=牆)。找不到對應視圖 → 退回單張 maze_bg（＋程式疊牆與開口）；都沒有才用純程式偽 3D。
+  const VIEW_NAMES = {
+    "1_0_0": "corridor", "1_1_0": "corridor_left", "1_0_1": "corridor_right", "1_1_1": "corridor_both",
+    "0_0_0": "wall", "0_1_0": "wall_left", "0_0_1": "wall_right", "0_1_1": "wall_both"
+  };
+  const sceneCache = {}; // name -> Image / "missing" / null(載入中)
+  function loadScene(name, i) {
+    const urls = ["assets/images/scenes/" + name + ".jpg", "assets/images/scenes/" + name + ".png"];
+    if (i >= urls.length) { sceneCache[name] = "missing"; return; }
     const img = new Image();
     img.onload = function () {
-      bgImg = img;
+      sceneCache[name] = img;
       if (window.Abyss.Game && window.Abyss.Game.refreshMaze) window.Abyss.Game.refreshMaze();
     };
-    img.onerror = function () { loadBg(i + 1); };
-    img.src = BG_URLS[i];
+    img.onerror = function () { loadScene(name, i + 1); };
+    img.src = urls[i];
   }
-  loadBg(0);
+  function ensureScene(name) {
+    if (name in sceneCache) return;
+    sceneCache[name] = null;
+    loadScene(name, 0);
+  }
+  function scene(name) { const s = sceneCache[name]; return (s && s !== "missing") ? s : null; }
+  ensureScene("maze_bg");
+  Object.keys(VIEW_NAMES).forEach(function (k) { ensureScene(VIEW_NAMES[k]); });
+
+  function softVignette(ctx, W, H) {
+    const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.34, W / 2, H / 2, H * 0.84);
+    vig.addColorStop(0, "rgba(0,0,0,0)");
+    vig.addColorStop(1, "rgba(4,2,2,0.42)");
+    ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+  }
   function drawCover(ctx, img, W, H) {
     const s = Math.max(W / img.naturalWidth, H / img.naturalHeight);
     const w = img.naturalWidth * s, h = img.naturalHeight * s;
@@ -303,41 +323,40 @@ window.Abyss.Maze = (function () {
       if (isWall(pos.x + dir.dx * d, pos.y + dir.dy * d)) { stopD = d; break; }
     }
 
-    // ---- 有走廊底圖：底圖為主，疊上「正前方的牆」＋「兩側可轉彎的暗色開口」，讓玩家清楚看出牆與路 ----
-    if (bgImg && bgImg !== "missing") {
-      drawCover(ctx, bgImg, W, H);
-      // 側邊開口：能站的每個深度，若左/右是通道，就在底圖的側牆上挖一道暗色開口（提示可轉彎）。
-      // 由遠到近畫，近的蓋遠的。
-      for (let d = stopD; d >= 1; d--) {
-        const ccx = pos.x + dir.dx * d, ccy = pos.y + dir.dy * d;
-        if (isWall(ccx, ccy)) continue; // 牆的那格不是可站立處
-        const o = rectAt(W, H, d - 1), n = rectAt(W, H, d);
-        if (!isWall(ccx + leftDir.dx, ccy + leftDir.dy)) {
-          darkPassage(ctx, o.left, n.left, o.top, o.bottom, n.top, n.bottom);
-        }
-        if (!isWall(ccx + rightDir.dx, ccy + rightDir.dy)) {
-          darkPassage(ctx, o.right, n.right, o.top, o.bottom, n.top, n.bottom);
-        }
-      }
-      // 正前方的牆：實心不透明，清楚擋路（深度越遠畫得越小、位置越正確）。
-      const wcx = pos.x + dir.dx * stopD, wcy = pos.y + dir.dy * stopD;
-      if (isWall(wcx, wcy)) {
-        if (stopD <= 1) {
-          stoneFace(ctx, W * 0.05, H * 0.02, W * 0.95, H * 0.98, 0.72, wcx, wcy); // 貼臉牆填滿視野
-        } else {
-          const n = rectAt(W, H, stopD);
-          stoneFace(ctx, n.left, n.top, n.right, n.bottom, Math.max(0.34, 1 - stopD * 0.14), wcx, wcy);
-        }
-      }
-      // 淡暗角：保留氛圍，但不壓掉底圖的火把。
-      const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.34, W / 2, H / 2, H * 0.84);
-      vig.addColorStop(0, "rgba(0,0,0,0)");
-      vig.addColorStop(1, "rgba(4,2,2,0.42)");
-      ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+    // 玩家前 / 左 / 右是否有路（1=路 0=牆）。
+    const fOpen = isWall(pos.x + dir.dx, pos.y + dir.dy) ? 0 : 1;
+    const lOpen = isWall(pos.x + leftDir.dx, pos.y + leftDir.dy) ? 0 : 1;
+    const rOpen = isWall(pos.x + rightDir.dx, pos.y + rightDir.dy) ? 0 : 1;
+
+    // ---- (1) 有「對應這個路口的專屬視圖」→ 直接顯示（圖本身已畫出正確的牆與開口）＋淡暗角 ----
+    const viewImg = scene(VIEW_NAMES[fOpen + "_" + lOpen + "_" + rOpen]);
+    if (viewImg) {
+      drawCover(ctx, viewImg, W, H);
+      softVignette(ctx, W, H);
       return;
     }
 
-    // ---- 沒有底圖：純程式偽 3D 繪製（後備）----
+    // ---- (2) 只有單張走廊底圖 maze_bg → 用程式疊「正前方的牆」＋「兩側可轉彎的暗色開口」 ----
+    const bgImg = scene("maze_bg");
+    if (bgImg) {
+      drawCover(ctx, bgImg, W, H);
+      for (let d = stopD; d >= 1; d--) {
+        const ccx = pos.x + dir.dx * d, ccy = pos.y + dir.dy * d;
+        if (isWall(ccx, ccy)) continue;
+        const o = rectAt(W, H, d - 1), n = rectAt(W, H, d);
+        if (!isWall(ccx + leftDir.dx, ccy + leftDir.dy)) darkPassage(ctx, o.left, n.left, o.top, o.bottom, n.top, n.bottom);
+        if (!isWall(ccx + rightDir.dx, ccy + rightDir.dy)) darkPassage(ctx, o.right, n.right, o.top, o.bottom, n.top, n.bottom);
+      }
+      const wcx = pos.x + dir.dx * stopD, wcy = pos.y + dir.dy * stopD;
+      if (isWall(wcx, wcy)) {
+        if (stopD <= 1) stoneFace(ctx, W * 0.05, H * 0.02, W * 0.95, H * 0.98, 0.72, wcx, wcy);
+        else { const n = rectAt(W, H, stopD); stoneFace(ctx, n.left, n.top, n.right, n.bottom, Math.max(0.34, 1 - stopD * 0.14), wcx, wcy); }
+      }
+      softVignette(ctx, W, H);
+      return;
+    }
+
+    // ---- (3) 沒有任何底圖：純程式偽 3D 繪製（後備）----
     ctx.fillStyle = "#0a0809";
     ctx.fillRect(0, 0, W, H);
 
