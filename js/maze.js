@@ -274,6 +274,20 @@ window.Abyss.Maze = (function () {
     ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
   }
 
+  // 側邊開口：在底圖的側牆上畫一道往側面深處延伸的暗色通道，提示「這裡可以轉彎」。
+  function darkPassage(ctx, nearX, farX, nearTop, nearBottom, farTop, farBottom) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(nearX, nearTop); ctx.lineTo(farX, farTop);
+    ctx.lineTo(farX, farBottom); ctx.lineTo(nearX, nearBottom);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(nearX, 0, farX, 0);
+    g.addColorStop(0, "rgba(6,4,4,0.5)");   // 近端半暗
+    g.addColorStop(1, "rgba(2,1,2,0.92)");  // 深處近全黑（開口）
+    ctx.fillStyle = g; ctx.fill();
+    ctx.restore();
+  }
+
   function render(canvas) {
     if (!canvas || !floor) return;
     const ctx = canvas.getContext("2d");
@@ -289,22 +303,30 @@ window.Abyss.Maze = (function () {
       if (isWall(pos.x + dir.dx * d, pos.y + dir.dy * d)) { stopD = d; break; }
     }
 
-    // ---- 有走廊底圖：以底圖為主，只疊「正前方那道牆」（走廊、地面、火把都交給底圖，不重複畫）----
+    // ---- 有走廊底圖：底圖為主，疊上「正前方的牆」＋「兩側可轉彎的暗色開口」，讓玩家清楚看出牆與路 ----
     if (bgImg && bgImg !== "missing") {
       drawCover(ctx, bgImg, W, H);
+      // 側邊開口：能站的每個深度，若左/右是通道，就在底圖的側牆上挖一道暗色開口（提示可轉彎）。
+      // 由遠到近畫，近的蓋遠的。
+      for (let d = stopD; d >= 1; d--) {
+        const ccx = pos.x + dir.dx * d, ccy = pos.y + dir.dy * d;
+        if (isWall(ccx, ccy)) continue; // 牆的那格不是可站立處
+        const o = rectAt(W, H, d - 1), n = rectAt(W, H, d);
+        if (!isWall(ccx + leftDir.dx, ccy + leftDir.dy)) {
+          darkPassage(ctx, o.left, n.left, o.top, o.bottom, n.top, n.bottom);
+        }
+        if (!isWall(ccx + rightDir.dx, ccy + rightDir.dy)) {
+          darkPassage(ctx, o.right, n.right, o.top, o.bottom, n.top, n.bottom);
+        }
+      }
+      // 正前方的牆：實心不透明，清楚擋路（深度越遠畫得越小、位置越正確）。
       const wcx = pos.x + dir.dx * stopD, wcy = pos.y + dir.dy * stopD;
       if (isWall(wcx, wcy)) {
         if (stopD <= 1) {
-          // 貼臉牆：石牆填滿視野，明確「此路不通」。
-          ctx.save(); ctx.globalAlpha = 0.95;
-          stoneFace(ctx, W * 0.04, 0, W * 0.96, H, 0.72, wcx, wcy);
-          ctx.restore();
+          stoneFace(ctx, W * 0.05, H * 0.02, W * 0.95, H * 0.98, 0.72, wcx, wcy); // 貼臉牆填滿視野
         } else {
-          // 遠處的牆：畫在正確深度，近實遠透，自然融入走廊深處。
-          const inner = rectAt(W, H, stopD - 1);
-          ctx.save(); ctx.globalAlpha = Math.max(0.4, 0.9 - (stopD - 2) * 0.18);
-          stoneFace(ctx, inner.left, inner.top, inner.right, inner.bottom, Math.max(0.3, 1 - stopD * 0.15), wcx, wcy);
-          ctx.restore();
+          const n = rectAt(W, H, stopD);
+          stoneFace(ctx, n.left, n.top, n.right, n.bottom, Math.max(0.34, 1 - stopD * 0.14), wcx, wcy);
         }
       }
       // 淡暗角：保留氛圍，但不壓掉底圖的火把。
