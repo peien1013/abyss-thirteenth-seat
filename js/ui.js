@@ -300,6 +300,51 @@ window.Abyss.UI = (function () {
     return parts.join("、");
   }
 
+  // 小卡片：圖 + 名字 + 說明（供「背包滿了換一個」視窗使用）。
+  function pickupCard(artNode, name, info, cls) {
+    const card = document.createElement("div");
+    card.className = cls;
+    const art = document.createElement("div"); art.className = "pickup-art";
+    if (artNode) art.appendChild(artNode);
+    card.appendChild(art);
+    const n = document.createElement("div"); n.className = "pickup-name"; n.textContent = name;
+    card.appendChild(n);
+    const f = document.createElement("div"); f.className = "pickup-info"; f.textContent = info || "";
+    card.appendChild(f);
+    return card;
+  }
+
+  // 背包滿了：顯示新裝備 + 目前背包各格，點一格 → handlers.onDiscard(index)；放棄 → handlers.onCancel()。
+  function renderPickupReplace(newItem, player, handlers) {
+    const S = window.Abyss.Sprites;
+    const G = window.GAME_DATA || {};
+    const newBox = document.getElementById("pickup-new");
+    const bagBox = document.getElementById("pickup-bag");
+    if (!newBox || !bagBox) return;
+    newBox.innerHTML = "";
+    newBox.appendChild(pickupCard(S ? S.equipNode(newItem.id) : null, "✨ " + newItem.name,
+      (SLOT_NAMES[newItem.slot] || "") + "　" + bonusText(newItem.bonus), "pickup-card new"));
+    bagBox.innerHTML = "";
+    player.bag.forEach(function (slot, i) {
+      let art = null, name = "", info = "";
+      if (slot.kind === "equipment") {
+        const eq = G.equipment[slot.id]; if (!eq) return;
+        art = S ? S.equipNode(slot.id) : null; name = eq.name;
+        info = (SLOT_NAMES[eq.slot] || "") + "　" + bonusText(eq.bonus);
+      } else {
+        const it = G.items[slot.id]; if (!it) return;
+        art = S ? S.itemNode(slot.id) : null;
+        name = it.name + (slot.count > 1 ? " ×" + slot.count : "");
+        info = itemEffectShort(it);
+      }
+      const card = pickupCard(art, name, info, "pickup-card");
+      card.addEventListener("click", function () { handlers.onDiscard(i); });
+      bagBox.appendChild(card);
+    });
+    const cancel = document.getElementById("btn-pickup-cancel");
+    if (cancel) cancel.onclick = function () { handlers.onCancel(); };
+  }
+
   // 圖鑑：怪物遭遇後解鎖（未遭遇顯示剪影）；道具、裝備直接展示。
   function renderCodex(category) {
     const grid = document.getElementById("codex-grid");
@@ -373,6 +418,7 @@ window.Abyss.UI = (function () {
     showVictory: showVictory,
     renderEquip: renderEquip,
     renderCodex: renderCodex,
+    renderPickupReplace: renderPickupReplace,
     updateWallet: updateWallet,
     get el() { return el; }
   };

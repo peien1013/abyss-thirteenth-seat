@@ -111,6 +111,12 @@ window.Abyss.Player = (function () {
     }
     return false;
   }
+  // 丟棄背包第 index 格（不論消耗品或裝備），用於「背包滿了、丟一個換新的」。
+  function bagDiscardSlot(p, index) {
+    if (index < 0 || index >= p.bag.length) return false;
+    p.bag.splice(index, 1);
+    return true;
+  }
 
   // 穿上包包裡的一件裝備（換裝時舊的回到包包，格數不變）。
   function equip(p, id) {
@@ -179,6 +185,6 @@ window.Abyss.Player = (function () {
     create, expToNext, gainExp, levelUp, isMagicClass, equip, unequip,
     consumableList, useConsumable, consumableCount,
     bagAddConsumable, bagAddEquipment, bagHasSpace, bagUsed, ownsEquipment, equipmentInBag,
-    BAG_MAX
+    bagDiscardSlot, BAG_MAX
   };
 })();

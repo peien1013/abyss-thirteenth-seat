@@ -129,6 +129,36 @@ window.Abyss.Game = (function () {
     return { item: item };
   }
 
+  // 一次裝備掉落 → 回傳要接在訊息後的字串；背包滿了則開「丟一個換」視窗。
+  function equipDropMessage(drop) {
+    if (!drop || !drop.item) return "";
+    if (drop.full) {
+      openReplaceBag(drop.item);
+      return "　🎒 撿到【" + drop.item.name + "】，但背包滿了——請選擇丟棄一件或放棄。";
+    }
+    window.Abyss.Audio.playSfx("levelup");
+    return "　✨ 撿到【" + drop.item.name + "】！（點右邊 🎒 包包 穿上）";
+  }
+
+  // 背包滿了：跳出視窗，讓玩家丟一件換新裝備（或放棄）。
+  function openReplaceBag(item) {
+    UI().renderPickupReplace(item, run.player, {
+      onDiscard: function (i) {
+        window.Abyss.Player.bagDiscardSlot(run.player, i);
+        window.Abyss.Player.bagAddEquipment(run.player, item.id);
+        window.Abyss.Audio.playSfx("levelup");
+        UI().toggleModal("modal-pickup", false);
+        UI().mazeMessage("你騰出空間，收下了【" + item.name + "】。（點 🎒 包包 穿上）");
+        persist();
+      },
+      onCancel: function () {
+        UI().toggleModal("modal-pickup", false);
+        UI().mazeMessage("你放棄了【" + item.name + "】。");
+      }
+    });
+    UI().toggleModal("modal-pickup", true);
+  }
+
   // ---- 移動與轉向 ----
   function handleTurn(direction) {
     if (busy || !run) return;
@@ -227,14 +257,8 @@ window.Abyss.Game = (function () {
       const gold = randInt(12, 30);
       run.player.gold += gold;
       let msg = "你打開寶箱，裡面有 💰 +" + gold + " 金幣";
-      const drop = rollEquipmentDrop(true); // 寶箱＝必給可用裝備（若還有沒拿過的）
-      if (drop && drop.full) {
-        msg += "，還有【" + drop.item.name + "】，但包包滿了，只能留在原地。";
-      } else if (drop && drop.item) {
-        msg += "，還有 ✨【" + drop.item.name + "】！（點右邊 🎒 包包 穿上）";
-      } else {
-        msg += "。";
-      }
+      const dmsg = equipDropMessage(rollEquipmentDrop(true)); // 寶箱＝必給可用裝備（若還有沒拿過的）
+      msg += dmsg || "。";
       UI().mazeMessage(msg);
       busy = false;
       persist();
@@ -307,13 +331,7 @@ window.Abyss.Game = (function () {
       const gold = result === "win-boss" ? randInt(45, 90) : randInt(5, 16);
       run.player.gold += gold;
       msg += "　💰 +" + gold + " 金幣";
-      const drop = rollEquipmentDrop(result === "win-boss");
-      if (drop && drop.full) {
-        msg += "　🎒 包包滿了，撿不了【" + drop.item.name + "】。";
-      } else if (drop && drop.item) {
-        msg += "　✨ 撿到【" + drop.item.name + "】！（點右邊 🎒 包包 穿上）";
-        window.Abyss.Audio.playSfx("levelup");
-      }
+      msg += equipDropMessage(rollEquipmentDrop(result === "win-boss"));
     }
     UI().mazeMessage(msg);
     persist();
