@@ -253,13 +253,31 @@ window.Abyss.Maze = (function () {
     ctx.restore();
   }
 
+  // 迷宮走廊背景圖：放了 assets/images/scenes/maze_bg（.jpg 部署／.png 本機）就當「底層氛圍」，
+  // 動態牆／地板／天花板疊在上面（正前方牆接近不透明，清楚擋路）。沒圖則維持純程式繪製。
+  let bgImg = null; // null=未載 / "missing"=沒圖 / Image=已載入
+  const BG_URLS = ["assets/images/scenes/maze_bg.jpg", "assets/images/scenes/maze_bg.png"];
+  function loadBg(i) {
+    if (i >= BG_URLS.length) { bgImg = "missing"; return; }
+    const img = new Image();
+    img.onload = function () {
+      bgImg = img;
+      if (window.Abyss.Game && window.Abyss.Game.refreshMaze) window.Abyss.Game.refreshMaze();
+    };
+    img.onerror = function () { loadBg(i + 1); };
+    img.src = BG_URLS[i];
+  }
+  loadBg(0);
+  function drawCover(ctx, img, W, H) {
+    const s = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const w = img.naturalWidth * s, h = img.naturalHeight * s;
+    ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+  }
+
   function render(canvas) {
     if (!canvas || !floor) return;
     const ctx = canvas.getContext("2d");
     const W = canvas.width, H = canvas.height;
-
-    ctx.fillStyle = "#0a0809";
-    ctx.fillRect(0, 0, W, H);
 
     const dir = DIRS[facing];
     const leftDir = DIRS[LEFT[facing]];
@@ -270,6 +288,36 @@ window.Abyss.Maze = (function () {
     for (let d = 1; d <= MAX_DEPTH; d++) {
       if (isWall(pos.x + dir.dx * d, pos.y + dir.dy * d)) { stopD = d; break; }
     }
+
+    // ---- 有走廊底圖：以底圖為主，只疊「正前方那道牆」（走廊、地面、火把都交給底圖，不重複畫）----
+    if (bgImg && bgImg !== "missing") {
+      drawCover(ctx, bgImg, W, H);
+      const wcx = pos.x + dir.dx * stopD, wcy = pos.y + dir.dy * stopD;
+      if (isWall(wcx, wcy)) {
+        if (stopD <= 1) {
+          // 貼臉牆：石牆填滿視野，明確「此路不通」。
+          ctx.save(); ctx.globalAlpha = 0.95;
+          stoneFace(ctx, W * 0.04, 0, W * 0.96, H, 0.72, wcx, wcy);
+          ctx.restore();
+        } else {
+          // 遠處的牆：畫在正確深度，近實遠透，自然融入走廊深處。
+          const inner = rectAt(W, H, stopD - 1);
+          ctx.save(); ctx.globalAlpha = Math.max(0.4, 0.9 - (stopD - 2) * 0.18);
+          stoneFace(ctx, inner.left, inner.top, inner.right, inner.bottom, Math.max(0.3, 1 - stopD * 0.15), wcx, wcy);
+          ctx.restore();
+        }
+      }
+      // 淡暗角：保留氛圍，但不壓掉底圖的火把。
+      const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.34, W / 2, H / 2, H * 0.84);
+      vig.addColorStop(0, "rgba(0,0,0,0)");
+      vig.addColorStop(1, "rgba(4,2,2,0.42)");
+      ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+      return;
+    }
+
+    // ---- 沒有底圖：純程式偽 3D 繪製（後備）----
+    ctx.fillStyle = "#0a0809";
+    ctx.fillRect(0, 0, W, H);
 
     // 由遠到近繪製，近處覆蓋遠處。深度越遠對比越低。
     for (let d = stopD; d >= 1; d--) {
@@ -300,21 +348,21 @@ window.Abyss.Maze = (function () {
       }
     }
 
-    // 濕滑地面反光：下方一道暖色倒影，像積水反射著火光（地窖氛圍）。
+    // 濕滑地面反光。
     const wet = ctx.createLinearGradient(0, H * 0.6, 0, H);
     wet.addColorStop(0, "rgba(0,0,0,0)");
     wet.addColorStop(0.72, "rgba(150,95,45,0.05)");
     wet.addColorStop(1, "rgba(210,150,75,0.13)");
     ctx.fillStyle = wet; ctx.fillRect(0, H * 0.55, W, H * 0.45);
 
-    // 火把暖光：由下方中央往上散開，較強、較暖（燭火琥珀）。
+    // 火把暖光。
     const torch = ctx.createRadialGradient(W / 2, H * 0.80, H * 0.04, W / 2, H * 0.78, H * 0.84);
     torch.addColorStop(0, "rgba(248,182,96,0.30)");
     torch.addColorStop(0.45, "rgba(212,136,60,0.12)");
     torch.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = torch; ctx.fillRect(0, 0, W, H);
 
-    // 深處暖霧：遠端不是死黑，帶一點暖棕的霧，增加縱深。
+    // 深處暖霧。
     const haze = ctx.createRadialGradient(W / 2, H * 0.44, H * 0.02, W / 2, H * 0.44, H * 0.5);
     haze.addColorStop(0, "rgba(92,62,44,0.22)");
     haze.addColorStop(1, "rgba(0,0,0,0)");
