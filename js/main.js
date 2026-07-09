@@ -285,13 +285,15 @@
     bindButton("btn-skill", function () { Abyss.Battle.chooseSkill(); });
     bindButton("btn-item", function () { Abyss.Battle.chooseItem(); });
     bindButton("btn-flee", function () { Abyss.Battle.chooseFlee(); });
-    // 戰鬥按鈕圖示：放了 assets/images/ui/<name>.png 就用圖取代 emoji（沒放則維持 emoji）。
+    // 戰鬥按鈕圖示：放了 assets/images/ui/<name>.png 就用圖取代 emoji（自動去背白底；沒放則維持 emoji）。
     [["btn-attack", "attack"], ["btn-skill", "skill"], ["btn-item", "item"], ["btn-flee", "flee"]].forEach(function (p) {
       const btn = $(p[0]); if (!btn) return;
       const ico = btn.querySelector(".at-ico"); if (!ico) return;
-      const img = new Image();
-      img.onload = function () { ico.innerHTML = "<img class='at-img' src='assets/images/ui/" + p[1] + ".png' alt=''>"; };
-      img.src = "assets/images/ui/" + p[1] + ".png";
+      if (window.Abyss.Sprites && Abyss.Sprites.load) {
+        Abyss.Sprites.load("assets/images/ui/" + p[1] + ".png", function (res) {
+          if (res && res.status === "ok") ico.innerHTML = "<img class='at-img' src='" + res.data + "' alt=''>";
+        });
+      }
     });
 
     // 死亡 / 勝利。
