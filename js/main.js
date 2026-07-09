@@ -7,6 +7,80 @@
 
   function $(id) { return document.getElementById(id); }
 
+  // ================= 鍵盤快捷鍵（戰鬥動作，可在設定裡自訂，存於瀏覽器） =================
+  const KEY_DEFAULTS = { attack: "A", skill: "S", item: "D", flee: "F" };
+  let keyBinds = (function () {
+    try { return Object.assign({}, KEY_DEFAULTS, JSON.parse(localStorage.getItem("abyss_keybinds") || "{}")); }
+    catch (e) { return Object.assign({}, KEY_DEFAULTS); }
+  })();
+  let rebinding = null; // 設定中：正在等待新按鍵的 { act, btn }
+  function saveKeyBinds() { try { localStorage.setItem("abyss_keybinds", JSON.stringify(keyBinds)); } catch (e) {} }
+  function keyFor(action) { return String(keyBinds[action] || KEY_DEFAULTS[action] || "").toUpperCase(); }
+
+  const BATTLE_ACTIONS = [
+    { id: "btn-attack", act: "attack", name: "攻擊", fn: function () { Abyss.Battle.chooseAttack(); } },
+    { id: "btn-skill", act: "skill", name: "技能", fn: function () { Abyss.Battle.chooseSkill(); } },
+    { id: "btn-item", act: "item", name: "道具", fn: function () { Abyss.Battle.chooseItem(); } },
+    { id: "btn-flee", act: "flee", name: "逃跑", fn: function () { Abyss.Battle.chooseFlee(); } }
+  ];
+
+  // 在按鈕角落顯示對應鍵盤字母。
+  function updateKeyBadges() {
+    BATTLE_ACTIONS.forEach(function (a) { setBadge(a.id, keyFor(a.act)); });
+    // 迷宮方向鍵：固定 W／A／S／D 提示。
+    setBadge("btn-forward", "W"); setBadge("btn-left", "A"); setBadge("btn-back", "S"); setBadge("btn-right", "D");
+  }
+  function setBadge(id, text) {
+    const btn = $(id); if (!btn) return;
+    let kb = btn.querySelector(".key-badge");
+    if (!kb) { kb = document.createElement("span"); kb.className = "key-badge"; btn.appendChild(kb); }
+    kb.textContent = text;
+  }
+
+  // 戰鬥中：按下綁定的鍵 → 觸發對應動作。
+  function onBattleKey(e) {
+    if (rebinding) return;
+    const el = Abyss.UI.el.screens["screen-battle"];
+    if (!el || !el.classList.contains("active")) return;
+    if (/input|textarea/i.test((e.target.tagName || ""))) return;
+    const k = String(e.key || "").toUpperCase();
+    for (let i = 0; i < BATTLE_ACTIONS.length; i++) {
+      if (k && k === keyFor(BATTLE_ACTIONS[i].act)) { e.preventDefault(); BATTLE_ACTIONS[i].fn(); return; }
+    }
+  }
+
+  // 設定畫面：列出可改的按鍵。
+  function renderKeybinds() {
+    const list = $("keybind-list"); if (!list) return;
+    list.innerHTML = "";
+    BATTLE_ACTIONS.forEach(function (a) {
+      const row = document.createElement("div"); row.className = "keybind-row";
+      const label = document.createElement("span"); label.className = "keybind-label"; label.textContent = a.name;
+      const btn = document.createElement("button"); btn.type = "button"; btn.className = "keybind-key"; btn.textContent = keyFor(a.act);
+      btn.addEventListener("click", function () {
+        if (rebinding && rebinding.btn) { rebinding.btn.textContent = keyFor(rebinding.act); rebinding.btn.classList.remove("listening"); }
+        rebinding = { act: a.act, btn: btn };
+        btn.textContent = "按任意鍵…"; btn.classList.add("listening");
+      });
+      row.appendChild(label); row.appendChild(btn); list.appendChild(row);
+    });
+  }
+  // 攔截設定中的按鍵（capture：搶在遊戲鍵前面）。
+  function handleRebindKey(e) {
+    if (!rebinding) return;
+    e.preventDefault(); e.stopPropagation();
+    const k = String(e.key || "").toUpperCase();
+    if (k === "ESCAPE") { rebinding.btn.textContent = keyFor(rebinding.act); rebinding.btn.classList.remove("listening"); rebinding = null; return; }
+    if (!/^[A-Z0-9]$/.test(k)) return; // 只接受字母或數字
+    const oldKey = keyFor(rebinding.act);
+    // 若此鍵已綁其他動作 → 交換（避免兩個動作同一鍵）。
+    BATTLE_ACTIONS.forEach(function (a) { if (a.act !== rebinding.act && keyFor(a.act) === k) keyBinds[a.act] = oldKey; });
+    keyBinds[rebinding.act] = k; saveKeyBinds();
+    rebinding.btn.classList.remove("listening"); rebinding = null;
+    renderKeybinds(); updateKeyBadges();
+  }
+  function openSettings() { syncAudioPanel(); renderKeybinds(); Abyss.UI.toggleModal("modal-audio", true); }
+
   // 固定 1920×1080 舞台等比縮放置中。
   function fitStage() {
     const app = $("app");
@@ -138,7 +212,7 @@
 
     // 主選單。
     bindButton("btn-new-game", function () { Abyss.UI.showScreen("screen-class"); });
-    bindButton("btn-settings", function () { syncAudioPanel(); Abyss.UI.toggleModal("modal-audio", true); });
+    bindButton("btn-settings", openSettings);
     bindButton("btn-instructions", function () { Abyss.UI.toggleInstructions(true); });
     bindButton("btn-instructions-close", function () { Abyss.UI.toggleInstructions(false); });
     bindButton("btn-fullscreen", toggleFullscreen);
@@ -193,7 +267,7 @@
 
     // 迷宮右下功能鍵：狀態＝角色面板；設定＝音訊面板；圖鑑暫停用。
     bindButton("btn-status", function () { Abyss.Game.openEquip(); });
-    bindButton("btn-maze-settings", function () { syncAudioPanel(); Abyss.UI.toggleModal("modal-audio", true); });
+    bindButton("btn-maze-settings", openSettings);
 
     // 迷宮小地圖：縮放與「查看地圖詳情」。
     bindButton("btn-map-zoomin", function () { Abyss.Maze.zoomMinimap(1); Abyss.Game.refreshMaze(); });
@@ -201,20 +275,34 @@
     bindButton("btn-map-detail", function () { Abyss.UI.mazeMessage("完整地圖檢視之後開放，先用右上角小地圖探索吧。"); });
 
     // 戰鬥設定鈕。
-    bindButton("btn-battle-settings", function () { syncAudioPanel(); Abyss.UI.toggleModal("modal-audio", true); });
+    bindButton("btn-battle-settings", openSettings);
+    bindButton("btn-keys-reset", function () {
+      keyBinds = Object.assign({}, KEY_DEFAULTS); saveKeyBinds(); renderKeybinds(); updateKeyBadges();
+    });
 
     // 戰鬥動作。
     bindButton("btn-attack", function () { Abyss.Battle.chooseAttack(); });
     bindButton("btn-skill", function () { Abyss.Battle.chooseSkill(); });
     bindButton("btn-item", function () { Abyss.Battle.chooseItem(); });
     bindButton("btn-flee", function () { Abyss.Battle.chooseFlee(); });
+    // 戰鬥按鈕圖示：放了 assets/images/ui/<name>.png 就用圖取代 emoji（沒放則維持 emoji）。
+    [["btn-attack", "attack"], ["btn-skill", "skill"], ["btn-item", "item"], ["btn-flee", "flee"]].forEach(function (p) {
+      const btn = $(p[0]); if (!btn) return;
+      const ico = btn.querySelector(".at-ico"); if (!ico) return;
+      const img = new Image();
+      img.onload = function () { ico.innerHTML = "<img class='at-img' src='assets/images/ui/" + p[1] + ".png' alt=''>"; };
+      img.src = "assets/images/ui/" + p[1] + ".png";
+    });
 
     // 死亡 / 勝利。
     bindButton("btn-death-restart", function () { Abyss.UI.showScreen("screen-start"); });
     bindButton("btn-victory-continue", function () { Abyss.Game.endRunToStart(); });
 
     // 鍵盤。
+    window.addEventListener("keydown", handleRebindKey, true); // capture：設定改鍵時搶先攔截
     window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onBattleKey);
+    updateKeyBadges();
     // 開發：R 鍵切換參考圖疊層。
     window.addEventListener("keydown", function (e) {
       if ((e.key === "r" || e.key === "R") && !/input|textarea/i.test((e.target.tagName || ""))) cycleRef();

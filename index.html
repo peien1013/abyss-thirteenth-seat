@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202607072214">
+  <link rel="stylesheet" href="css/style.css?v=202607092057">
 </head>
 <body>
   <noscript>此遊戲需要啟用 JavaScript。</noscript>
@@ -335,7 +335,7 @@
     <!-- 音訊設定彈窗 -->
     <div id="modal-audio" class="modal">
       <div class="modal-box">
-        <h2>音訊設定</h2>
+        <h2>設定</h2>
         <p class="hint audio-note">首次點擊或按鍵後才會開始播放（瀏覽器限制）。目前為占位合成音，未來會替換為正式音樂與音效。</p>
         <div class="audio-row">
           <label for="vol-master">總音量</label>
@@ -353,6 +353,10 @@
           <span id="vol-sfx-val" class="audio-val">80</span>
         </div>
         <label class="audio-mute"><input id="chk-mute" type="checkbox"> 總靜音</label>
+        <h3 class="settings-subtitle">戰鬥快捷鍵</h3>
+        <p class="hint keybind-hint">點一下要改的動作，再按下你想指定的鍵盤按鍵（字母或數字）。</p>
+        <div id="keybind-list" class="keybind-list"></div>
+        <button id="btn-keys-reset" type="button" class="btn small keys-reset">還原預設按鍵</button>
         <button id="btn-audio-close" type="button" class="btn primary">關閉</button>
       </div>
     </div>
@@ -415,16 +419,16 @@
   <script src="data/floors/floor01.js"></script>
 
   <!-- 程式邏輯 -->
-  <script src="js/save.js?v=202607072214"></script>
-  <script src="js/audio.js?v=202607072214"></script>
-  <script src="js/sprites.js?v=202607072214"></script>
-  <script src="js/effects.js?v=202607072214"></script>
-  <script src="js/player.js?v=202607072214"></script>
-  <script src="js/maze.js?v=202607072214"></script>
-  <script src="js/battle.js?v=202607072214"></script>
-  <script src="js/ui.js?v=202607072214"></script>
-  <script src="js/menu.js?v=202607072214"></script>
-  <script src="js/game.js?v=202607072214"></script>
-  <script src="js/main.js?v=202607072214"></script>
+  <script src="js/save.js?v=202607092057"></script>
+  <script src="js/audio.js?v=202607092057"></script>
+  <script src="js/sprites.js?v=202607092057"></script>
+  <script src="js/effects.js?v=202607092057"></script>
+  <script src="js/player.js?v=202607092057"></script>
+  <script src="js/maze.js?v=202607092057"></script>
+  <script src="js/battle.js?v=202607092057"></script>
+  <script src="js/ui.js?v=202607092057"></script>
+  <script src="js/menu.js?v=202607092057"></script>
+  <script src="js/game.js?v=202607092057"></script>
+  <script src="js/main.js?v=202607092057"></script>
 </body>
 </html>
