@@ -1107,3 +1107,13 @@ body { margin: 0; background: #000; overflow: hidden; }
 /* 戰鬥按鈕自訂圖示（放了 assets/images/ui/<name>.png 才會出現，取代 emoji） */
 .at-ico .at-img { width: 46px; height: 46px; object-fit: contain; display: block; margin: 0 auto;
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.7)); }
+
+/* 前進／後退一格的「踏步」微晃：往前一衝＋下沉，再回正（給走動的震動感） */
+@keyframes mazestep {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(7px) scale(1.032); }
+  62% { transform: translateY(-2px) scale(1.006); }
+  100% { transform: translateY(0) scale(1); }
+}
+.maze-world.stepping { animation: mazestep 0.26s ease-out; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .maze-world.stepping { animation: none; } }

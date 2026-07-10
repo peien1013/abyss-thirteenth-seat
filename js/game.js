@@ -65,6 +65,13 @@ window.Abyss.Game = (function () {
     UI().renderMazeHud(run.player, floor().name, Maze().explorePercent());
   }
 
+  // 前進／後退一格的「踏步」回饋：畫面微晃（往前一衝＋下沉）＋手機觸覺震動。
+  function mazeStepFeedback() {
+    const mw = document.querySelector("#screen-maze .maze-world");
+    if (mw) { mw.classList.remove("stepping"); void mw.offsetWidth; mw.classList.add("stepping"); }
+    if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+  }
+
   // 戰鬥背景：若放了 GPT 場景圖（assets/images/scenes/battle_bg.png/.jpg）就用它，
   // 否則退回「當前所在走廊的第一人稱視角」。放圖進去、重新整理即自動生效，毋須改程式。
   let battleBg = null; // null=未試 / "missing"=沒圖 / Image=已載入
@@ -188,6 +195,7 @@ window.Abyss.Game = (function () {
     run.player.stats.steps += 1;
     window.Abyss.Audio.playSfx("footstep");
     renderMaze();
+    mazeStepFeedback();
 
     const cell = result.cell;
     if (cell.exit) {
