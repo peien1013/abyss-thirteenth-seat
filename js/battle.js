@@ -227,8 +227,8 @@ window.Abyss.Battle = (function () {
       unit.className = "enemy-unit " + spot.row +
         (e.alive ? "" : " dead") + (e.isBoss ? " boss" : "") + (targetable ? " targetable" : "");
       unit.disabled = !targetable;
-      // 前排較大、後排較小；Boss 最大。
-      const w = e.isBoss ? 28 : (spot.row === "front" ? 19 : 14.5);
+      // 前排較大、後排較小；Boss 最大（放大以增加壓迫感）。
+      const w = e.isBoss ? 38 : (spot.row === "front" ? 19 : 14.5);
       unit.style.left = spot.x + "%";
       unit.style.top = spot.y + "%";
       unit.style.width = w + "%";
